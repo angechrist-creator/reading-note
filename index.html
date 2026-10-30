@@ -408,6 +408,8 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important; animation:none !important; scroll-behavior:auto !important}
 }
+
+button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -1657,32 +1659,35 @@ document.addEventListener('pointercancel',e=>{ if(e.pointerType==='pen') penPts.
 document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1||penActive()) e.preventDefault() },{passive:false});
 
 ;(function(){
-  var tap=null,handled=false,suppressT=null,suppressUntil=0;
+  var tap=null,suppressT=null,suppressUntil=0,synthBusy=false;
   var inDraw=function(el){try{return !!(el&&el.closest&&el.closest('.papercell,#notePaper'))}catch(_){return false}};
+  var activate=function(t){
+    if(!t||!t.dispatchEvent) return;
+    var lbl=null;try{lbl=t.closest?t.closest('label'):null}catch(_){}
+    var ctl=lbl||t;
+    suppressT=ctl;
+    if(ctl.click){synthBusy=true;try{ctl.click()}catch(_){}synthBusy=false;}
+    else{var ev;try{ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window})}catch(_){ev=document.createEvent('MouseEvents');ev.initMouseEvent('click',true,true,window,0,0,0,0,0,false,false,false,false,0,null)}try{ev.__penSynth=true;ctl.dispatchEvent(ev)}catch(_){}}
+    suppressUntil=Date.now()+600;
+  };
   document.addEventListener('pointerdown',function(e){
     if(e.pointerType!=='pen') return;
-    handled=false;
     if(inDraw(e.target)){tap=null;return;}
     tap={t:e.target,x:e.clientX,y:e.clientY,ts:Date.now()};
   },true);
   document.addEventListener('click',function(e){
-    if(e.__penSynth) return;
-    if(suppressT&&Date.now()<suppressUntil&&(e.target===suppressT||(suppressT.contains&&suppressT.contains(e.target)))){e.stopPropagation();e.preventDefault();return;}
-    if(tap&&(e.target===tap.t||(tap.t.contains&&tap.t.contains(e.target)))) handled=true;
+    if(synthBusy||e.__penSynth) return;
+    if(suppressT&&Date.now()<suppressUntil&&(e.target===suppressT||(suppressT.contains&&suppressT.contains(e.target)))){e.stopPropagation();e.preventDefault();}
   },true);
-  document.addEventListener('pointerup',function(e){
+  var finish=function(e){
     if(e.pointerType!=='pen'||!tap) return;
-    var t0=tap;
-    if(Math.hypot(e.clientX-t0.x,e.clientY-t0.y)>12||Date.now()-t0.ts>700){tap=null;return;}
-    setTimeout(function(){
-      if(handled||!t0.t||!t0.t.click) return;
-      suppressT=t0.t;suppressUntil=Date.now()+400;
-      var ev;
-      try{ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window})}catch(_){ev=document.createEvent('MouseEvents');ev.initMouseEvent('click',true,true,window,0,0,0,0,0,false,false,false,false,0,null)}
-      try{ev.__penSynth=true;t0.t.dispatchEvent(ev)}catch(_){}
-    },60);
-  },true);
-  document.addEventListener('pointercancel',function(){tap=null;},true);
+    var t0=tap;tap=null;
+    if(inDraw(t0.t)) return;
+    if(Math.hypot(e.clientX-t0.x,e.clientY-t0.y)>14||Date.now()-t0.ts>700) return;
+    activate(t0.t);
+  };
+  document.addEventListener('pointerup',finish,true);
+  document.addEventListener('pointercancel',finish,true);
 })();
 </script>
 </body>
