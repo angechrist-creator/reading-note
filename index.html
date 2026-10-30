@@ -156,7 +156,7 @@ svg{display:block}
 /* ---------- viewer ---------- */
 #viewerWrap{flex:1; min-width:0; position:relative; background:
   radial-gradient(1200px 500px at 70% -10%, rgba(245,217,63,.07), transparent 60%), var(--bg)}
-#viewer{position:absolute; inset:0; overflow:auto; padding:20px 24px 40px}
+#viewer{position:absolute; inset:0; overflow:auto; padding:8px 12px 10px}
 #pagesFlow{display:flex; flex-direction:column; gap:20px; min-height:100%}
 #pagesFlow .row{display:flex; gap:24px; align-items:flex-start; margin:auto}
 #pagesFlow .row.turn-hidden{display:none}
@@ -412,7 +412,7 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
   #toolrail{width:100%; overflow-x:auto; scrollbar-width:none}
   #toolrail::-webkit-scrollbar{display:none}
   #topbar .spacer{display:none}
-  #viewer{padding:14px 12px 40px}
+  #viewer{padding:8px 12px 10px}
   .st-hide-m{display:none}
 }
 @media (prefers-reduced-motion:reduce){
@@ -810,7 +810,7 @@ function rebuildRows(){
 }
 function layout(){
   if(!S.pdf) return;
-  const vw=viewer.clientWidth-64, vh=viewer.clientHeight-70;
+  const vw=viewer.clientWidth-24, vh=viewer.clientHeight-18;
   const per=S.viewMode==='double'?2:1, gutter=S.viewMode==='double'?24:0;
   const fitW=(vw-gutter*(per-1))/S.w1;
   const base=S.fitMode==='fit-height'?vh/S.h1:(S.fitMode==='fit-page'?Math.min(fitW,vh/S.h1):fitW);
@@ -1736,7 +1736,7 @@ function updateNoteW(){
     const cs=getComputedStyle(np);
     if(rnNoteManual){ let w2=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--note-w'))||0; if(!(w2>0)) w2=parseFloat(cs.width)||392; w2=Math.max(300,Math.min(Math.round(w2),Math.round(window.innerWidth*0.5))); const cur2=parseFloat(cs.width)||0; if(Math.abs(w2-cur2)>1){ document.documentElement.style.setProperty('--note-w',w2+'px'); noteLayout(); } return; }
     const extra=(cs.position==='absolute')?0:(parseFloat(cs.width)||0);
-    const vw0=viewer.clientWidth-64+extra;
+    const vw0=viewer.clientWidth-24+extra;
     if(!(vw0>100)) return;
     let pw=S.viewMode==='double'?((vw0-24)/2):vw0;
     pw=Math.min(Math.round(pw),Math.round(window.innerWidth*0.5)); pw=Math.max(Math.min(300,Math.round(window.innerWidth*0.5)),pw);
