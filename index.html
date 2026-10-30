@@ -748,10 +748,17 @@ async function renderPage(pv){
 }
 
 /* ================= 열기 / 레이아웃 / 이동 ================= */
+/* ==== 마지막 책 자동 저장/복원 (IndexedDB) ==== */
+function rnIdbOpen(){ return new Promise(function(res,rej){ var r=indexedDB.open('readingnote-db',1); r.onupgradeneeded=function(){ try{r.result.createObjectStore('kv')}catch(_){} }; r.onsuccess=function(){res(r.result)}; r.onerror=function(){rej(r.error)}; }); }
+function rnIdbPut(key,val){ return rnIdbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(val,key); tx.oncomplete=function(){db.close();res()}; tx.onerror=function(){db.close();rej(tx.error)}; tx.onabort=function(){db.close();rej(tx.error||new Error('abort'))}; }); }); }
+function rnIdbGet(key){ return rnIdbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction('kv','readonly'); var q=tx.objectStore('kv').get(key); q.onsuccess=function(){db.close();res(q.result||null)}; q.onerror=function(){db.close();rej(q.error)}; }); }); }
+async function rnRestoreLast(){ try{ const rec=await rnIdbGet('book'); if(rec&&rec.data&&rec.data.byteLength>0){ const d=(rec.data instanceof Uint8Array)?rec.data:new Uint8Array(rec.data); openPdfData(d,rec.name,rec.size); } }catch(_){} }
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist() }catch(_){}
 async function openPdfData(data,name,size){
   await ensurePdfJs();
   $('#loading').classList.add('on');
   try{
+    if(String(name).indexOf('샘플')<0){ try{ rnIdbPut('book',{name:String(name),size:size,data:data.slice(0),ts:Date.now()}) }catch(_){} }
     const pdf=await pdfjsLib.getDocument({data}).promise;
     closeSettings();
     S.pdf=pdf; S.numPages=pdf.numPages; S.fileName=name; S.fileSize=size;
@@ -1598,7 +1605,7 @@ window.addEventListener('keydown',e=>{
 (function init(){
   loadGlobalPrefs();
   applyTool(); updateStraightUI(); renderBookmarks(); renderTextNotes(); noteLayout();
-  if(/[?&]sample=1/.test(location.search)) openSample();
+  if(/[?&]sample=1/.test(location.search)) openSample(); else rnRestoreLast();
 })();
 
 
