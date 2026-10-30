@@ -265,6 +265,11 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
 #noteHandle::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:52px;border-radius:3px;background:var(--border);transition:background .15s ease}
 #noteHandle:hover::after,#noteHandle.on::after{background:var(--muted)}
 #noteHandle:active::after{background:var(--ink)}
+#npPageBar{display:flex;align-items:center;gap:2px;flex:none;margin-left:2px}
+#npPageBar button{height:30px;min-width:32px;padding:0 9px;font-size:16px;line-height:1;font-weight:700;color:var(--ink-2);border-radius:8px}
+#npPageBar button:disabled{opacity:.35}
+#npPageLbl{font-size:12px;font-weight:700;color:var(--muted);min-width:36px;text-align:center;flex:none}
+#notePanel:has(#npBodyInk:not(.on)) #npPageBar{display:none}
 #notePanel .np-head{
   display:flex; align-items:center; gap:4px; padding:10px 12px 0; flex:none;
 }
@@ -650,7 +655,7 @@ const S={
   tool:'pen', straight:false, dark:false, penOnly:true,
   pen:{color:'#242A31', size:3}, hl:{color:'#FFE34D', size:18, opacity:.45},
   eraser:14, textColor:'#242A31', textSize:2.8,
-  ann:{}, noteStrokes:[], textNotes:[], bookmarks:[],
+  ann:{}, noteStrokes:[], notePages:null, npCur:0, textNotes:[], bookmarks:[],
   current:1, maxSeen:0, activeSec:0, lastPage:1,
   undoStack:[], redoStack:[],
   w1:612, h1:792, searchHits:{}
@@ -768,11 +773,11 @@ async function openPdfData(data,name,size){
     closeSettings();
     S.pdf=pdf; S.numPages=pdf.numPages; S.fileName=name; S.fileSize=size;
     S.storeKey='rn:'+name+':'+size;
-    S.ann={}; S.noteStrokes=[]; S.textNotes=[]; S.pageViews.forEach(pv=>pv.destroy()); S.pageViews.clear(); flow.innerHTML='';
+    S.ann={}; S.noteStrokes=[]; S.notePages=null; S.npCur=0; S.textNotes=[]; S.pageViews.forEach(pv=>pv.destroy()); S.pageViews.clear(); flow.innerHTML='';
     S.current=1; S.maxSeen=1; S.lastPage=1; S.undoStack=[]; S.redoStack=[]; S.searchHits={};
     $('#searchInput').value=''; $('#searchResults').innerHTML=''; $('#searchMeta').textContent='';
     loadDocState();
-    noteRedraw(); renderTextNotes();
+    noteRedraw(); rnNotePageUI(); renderTextNotes();
     const p1=await pdf.getPage(1); const v1=p1.getViewport({scale:1}); S.w1=v1.width; S.h1=v1.height;
     $('#emptyState').style.display='none';
     buildThumbs(); buildOutline(); renderBookmarks();
@@ -995,19 +1000,20 @@ function eraseAt(sf,nx,ny){
     if(seg.length>1) splits.push(Object.assign({},st,{id:uid(),straight:false,points:seg}));
   }
   const next=kept.concat(splits);
-  if(isNote){ S.noteStrokes=next; sf.redrawAnn() } else { S.ann[sf.n]=next; sf.redrawAnn() }
+  if(isNote){ S.noteStrokes=next; if(S.notePages) S.notePages[S.npCur]=S.noteStrokes; sf.redrawAnn() } else { S.ann[sf.n]=next; sf.redrawAnn() }
   saveDeb();
 }
 
 /* ================= 실행취소 / 다시실행 ================= */
-function snapStore(key){ return key==='note'?JSON.parse(JSON.stringify(S.noteStrokes)):JSON.parse(JSON.stringify(S.ann[key]||[])) }
-function pushUndo(key){
+function snapStore(key){ if(key&&key.indexOf&&key.indexOf('note:')===0){ const p=+key.slice(5); const arr=(S.notePages&&S.notePages[p])||[]; return JSON.parse(JSON.stringify(arr)) } return key==='note'?JSON.parse(JSON.stringify(S.noteStrokes)):JSON.parse(JSON.stringify(S.ann[key]||[])) }
+function pushUndo(key){ if(key==='note') key='note:'+(S.npCur||0);
   S.undoStack.push({key,state:snapStore(key)});
   if(S.undoStack.length>80) S.undoStack.shift();
   S.redoStack.length=0; updateUndoUI();
 }
 function applyStore(key,state){
-  if(key==='note'){ S.noteStrokes=state; noteRedraw() }
+  if(key&&key.indexOf&&key.indexOf('note:')===0){ const p=+key.slice(5); if(!S.notePages||!S.notePages.length) S.notePages=[S.noteStrokes||[]]; while(S.notePages.length<=p) S.notePages.push([]); S.notePages[p]=state; if(S.npCur===p){ S.noteStrokes=state; noteRedraw() } }
+  else if(key==='note'){ S.noteStrokes=state; if(S.notePages) S.notePages[S.npCur]=S.noteStrokes; noteRedraw() }
   else{ S.ann[key]=state; const pv=S.pageViews.get(+key); if(pv&&pv.rendered) pv.redrawAnn() }
 }
 function undo(){
@@ -1037,6 +1043,47 @@ notePaper.addEventListener('pointerdown',e=>onCanvasDown(e,note));
 notePaper.addEventListener('pointermove',e=>onCanvasMove(e,note));
 notePaper.addEventListener('pointerup',e=>onCanvasUp(e,note));
 notePaper.addEventListener('pointercancel',e=>onCanvasUp(e,note));
+/* ================= 메모 페이지 (책별 여러 페이지) ================= */
+function rnNotePages(){
+  if(!S.notePages||!S.notePages.length){ S.notePages=[S.noteStrokes||[]]; S.npCur=0 }
+  if(!(S.npCur>=0&&S.npCur<S.notePages.length)) S.npCur=0;
+  if(S.notePages[S.npCur]!==S.noteStrokes) S.notePages[S.npCur]=S.noteStrokes;
+  return S.notePages;
+}
+function rnNotePageUI(){
+  if(!S.pdf) return;
+  rnNotePages();
+  const lbl=document.getElementById('npPageLbl');
+  if(lbl) lbl.textContent=(S.npCur+1)+'/'+S.notePages.length;
+  const pb=document.getElementById('npPrev'), nb=document.getElementById('npNext');
+  if(pb) pb.disabled=(S.npCur<=0);
+  if(nb) nb.disabled=(S.npCur>=S.notePages.length-1);
+}
+function rnNoteGo(p){
+  if(!S.pdf) return;
+  rnNotePages();
+  p=Math.max(0,Math.min(Math.floor(p),S.notePages.length-1));
+  if(p!==S.npCur){ S.npCur=p; S.noteStrokes=S.notePages[p]; noteLayout(); saveDeb(); }
+  rnNotePageUI();
+}
+function rnNoteAdd(){
+  if(!S.pdf) return;
+  rnNotePages();
+  S.notePages.push([]);
+  rnNoteGo(S.notePages.length-1);
+  saveDeb();
+  toast('메모 '+S.notePages.length+'페이지 추가');
+}
+(function(){
+  const tabs=document.querySelector('#notePanel .np-tabs');
+  if(!tabs||document.getElementById('npPageBar')) return;
+  const bar=document.createElement('div'); bar.id='npPageBar';
+  bar.innerHTML='<button id="npPrev" type="button" title="이전 메모 페이지">‹</button><span id="npPageLbl">1/1</span><button id="npNext" type="button" title="다음 메모 페이지">›</button><button id="npAdd" type="button" title="메모 페이지 추가">+</button>';
+  tabs.parentNode.insertBefore(bar,tabs.nextSibling);
+  document.getElementById('npPrev').addEventListener('click',()=>rnNoteGo(S.npCur-1));
+  document.getElementById('npNext').addEventListener('click',()=>rnNoteGo(S.npCur+1));
+  document.getElementById('npAdd').addEventListener('click',rnNoteAdd);
+})();
 function noteRedraw(){
   const cw=noteInk.width;
   noteInkCtx.clearRect(0,0,cw,noteInk.height);
@@ -1170,7 +1217,7 @@ $('#npTabText').addEventListener('click',()=>{
 $('#noteClear').addEventListener('click',()=>{
   if($('#npTabInk').classList.contains('on')){
     if(!S.noteStrokes.length) return;
-    pushUndo('note'); S.noteStrokes=[]; noteRedraw(); saveDeb(); toast('메모장 필기를 모두 지웠습니다');
+    pushUndo('note'); S.noteStrokes=[]; if(S.notePages) S.notePages[S.npCur]=S.noteStrokes; noteRedraw(); saveDeb(); rnNotePageUI(); toast((S.npCur+1)+'페이지 메모를 지웠습니다');
   } else {
     if(!S.textNotes.length) return;
     if(!confirm('텍스트 메모를 모두 삭제할까요?')) return;
@@ -1460,7 +1507,7 @@ function save(){
   if(!S.storeKey) return;
   try{
     localStorage.setItem(S.storeKey,JSON.stringify({
-      ann:S.ann, noteStrokes:S.noteStrokes, textNotes:S.textNotes, bookmarks:S.bookmarks,
+      ann:S.ann, notePages:rnNotePages(), npCur:S.npCur||0, textNotes:S.textNotes, bookmarks:S.bookmarks,
       lastPage:S.current, maxSeen:S.maxSeen, straight:S.straight, viewMode:S.viewMode,
       zoom:S.zoom, fitMode:S.fitMode, penOnly:S.penOnly,
       tools:{pen:S.pen,hl:S.hl,eraser:S.eraser,textColor:S.textColor,textSize:S.textSize},
@@ -1474,7 +1521,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 function loadDocState(){
   let d=null; try{ d=JSON.parse(localStorage.getItem(S.storeKey)||'null') }catch(e){}
   if(!d) return;
-  S.ann=d.ann||{}; S.noteStrokes=d.noteStrokes||[]; S.textNotes=d.textNotes||[]; S.bookmarks=d.bookmarks||[];
+  S.ann=d.ann||{}; S.notePages=(d.notePages&&d.notePages.length)?d.notePages:[d.noteStrokes||[]]; S.npCur=(typeof d.npCur==='number'&&d.npCur>=0&&d.npCur<S.notePages.length)?d.npCur:0; S.noteStrokes=S.notePages[S.npCur]; S.textNotes=d.textNotes||[]; S.bookmarks=d.bookmarks||[];
   S.lastPage=clamp(d.lastPage||1,1,S.numPages); S.maxSeen=d.maxSeen||S.lastPage;
   S.straight=!!d.straight;
   if(d.viewMode) S.viewMode=d.viewMode;
@@ -1535,7 +1582,7 @@ $('#btnExportPng').addEventListener('click',async ()=>{
 });
 $('#btnBackup').addEventListener('click',()=>{
   if(!S.pdf) return;
-  const data={app:'readingnote',version:1,fileName:S.fileName,ann:S.ann,noteStrokes:S.noteStrokes,textNotes:S.textNotes,bookmarks:S.bookmarks,lastPage:S.current};
+  const data={app:'readingnote',version:1,fileName:S.fileName,ann:S.ann,noteStrokes:S.noteStrokes,notePages:S.notePages||[S.noteStrokes],npCur:S.npCur||0,textNotes:S.textNotes,bookmarks:S.bookmarks,lastPage:S.current};
   const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=S.fileName.replace(/\.pdf$/i,'')+'_노트백업.json'; a.click();
@@ -1549,7 +1596,7 @@ $('#importInput').addEventListener('change',async e=>{
     const d=JSON.parse(await f.text());
     if(d.app!=='readingnote'){ toast('독서노트 백업 파일이 아닙니다'); return }
     if(d.ann) S.ann=d.ann;
-    if(d.noteStrokes){ S.noteStrokes=d.noteStrokes; noteLayout() }
+    if((d.notePages&&d.notePages.length)||d.noteStrokes){ if(d.notePages&&d.notePages.length){ S.notePages=d.notePages; S.npCur=(typeof d.npCur==='number'&&d.npCur>=0&&d.npCur<S.notePages.length)?d.npCur:0 } else { S.notePages=[d.noteStrokes||[]]; S.npCur=0 } S.noteStrokes=S.notePages[S.npCur]; noteLayout(); rnNotePageUI() }
     if(d.textNotes){ S.textNotes=d.textNotes; renderTextNotes() }
     if(d.bookmarks){ S.bookmarks=d.bookmarks; renderBookmarks(); updateStatusBar() }
     S.pageViews.forEach(pv=>{ if(pv.rendered) pv.redrawAnn() });
