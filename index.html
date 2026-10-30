@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>독서노트 — PDF 읽고 필기하기</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='3' width='24' height='26' rx='4' fill='%23F5D93F'/%3E%3Cpath d='M9 10h14M9 15h14M9 20h9' stroke='%23242A31' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -32,7 +32,7 @@ body.dark{
 html,body{height:100%}
 body{
   font-family:var(--font-ui); color:var(--ink); background:var(--bg);
-  overflow:hidden; -webkit-font-smoothing:antialiased;
+  overflow:hidden; touch-action:manipulation; -webkit-font-smoothing:antialiased;
   display:flex; flex-direction:column;
 }
 button{font-family:inherit; color:inherit; background:none; border:none; cursor:pointer}
@@ -188,7 +188,7 @@ body.dark .papercell{box-shadow:0 1px 3px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0
 #viewer.tool-hand .ink{cursor:grab}
 #viewer.tool-hand.dragging .ink{cursor:grabbing}
 .papercell .ink, .papercell .pre, .papercell .hits{touch-action:none}
-#viewer.tool-hand .ink{touch-action:auto}
+#viewer.tool-hand .ink{touch-action:none}
 #notePaper{touch-action:none} #notePaper canvas{pointer-events:none}
 
 /* tool rail */
@@ -237,6 +237,7 @@ body.dark .papercell{box-shadow:0 1px 3px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0
 input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:pointer}
 .switch-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 11px; background:var(--surface-2); border-radius:10px}
 .switch-row .sw-text{font-size:12.5px; font-weight:700}
+.switch-row .sw-text .sw-sub{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-top:2px;line-height:1.4}
 .switch{position:relative; width:38px; height:22px; flex:none}
 .switch input{position:absolute; opacity:0; width:100%; height:100%; cursor:pointer; margin:0}
 .switch .knob{
@@ -466,6 +467,13 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
           <label class="switch"><input type="checkbox" id="straightSwitch"><span class="knob"></span></label>
         </div>
       </div>
+
+      <div class="set-section" id="setPenOnly">
+        <div class="switch-row">
+          <div class="sw-text">펜 전용 필기<span class="sw-sub">애플 펜슬로만 필기 · 손가락은 이동, 두 손가락은 확대·축소</span></div>
+          <label class="switch"><input type="checkbox" id="penOnlySwitch" checked><span class="knob"></span></label>
+        </div>
+      </div>
     </div>
   </div>
   <div class="spacer"></div>
@@ -642,7 +650,7 @@ const FIT_LABELS={'fit-width':'폭 맞춤','fit-height':'상하 맞춤','fit-pag
 const S={
   pdf:null, numPages:0, fileName:'', fileSize:0, storeKey:null,
   pageViews:new Map(), viewMode:'single', fitMode:'fit-width', zoom:1,
-  tool:'pen', straight:false, dark:false,
+  tool:'pen', straight:false, dark:false, penOnly:true,
   pen:{color:'#242A31', size:3}, hl:{color:'#FFE34D', size:18, opacity:.45},
   eraser:14, textColor:'#242A31', textSize:2.8,
   ann:{}, noteStrokes:[], textNotes:[], bookmarks:[],
@@ -838,6 +846,13 @@ function canvasPos(e,pv){
 }
 function onCanvasDown(e,pv){
   if(!S.pdf&&pv.storeKey!=='note') return;
+  if(e.pointerType==='touch'&&(penActive()||pinch||touchPts.size>=2)) return;
+  if(e.pointerType==='touch'&&(S.tool==='hand'||S.penOnly)){
+    if(pv.storeKey==='note') return;
+    handDrag={x:e.clientX,y:e.clientY,l:viewer.scrollLeft,t:viewer.scrollTop};
+    pv.el.setPointerCapture(e.pointerId);
+    return;
+  }
   if(S.tool==='hand'){
     if(pv.storeKey==='note') return;
     handDrag={x:e.clientX,y:e.clientY,l:viewer.scrollLeft,t:viewer.scrollTop};
@@ -865,6 +880,7 @@ function onCanvasDown(e,pv){
   pv.drawPreview();
 }
 function onCanvasMove(e,pv){
+  if(e.pointerType==='touch'&&penActive()&&!handDrag) return;
   if(S.tool==='eraser') moveEraserCursor(e);
   if(handDrag){ viewer.scrollLeft=handDrag.l-(e.clientX-handDrag.x); viewer.scrollTop=handDrag.t-(e.clientY-handDrag.y); return }
   if(liveStroke){
@@ -1433,7 +1449,7 @@ function save(){
     localStorage.setItem(S.storeKey,JSON.stringify({
       ann:S.ann, noteStrokes:S.noteStrokes, textNotes:S.textNotes, bookmarks:S.bookmarks,
       lastPage:S.current, maxSeen:S.maxSeen, straight:S.straight, viewMode:S.viewMode,
-      zoom:S.zoom, fitMode:S.fitMode,
+      zoom:S.zoom, fitMode:S.fitMode, penOnly:S.penOnly,
       tools:{pen:S.pen,hl:S.hl,eraser:S.eraser,textColor:S.textColor,textSize:S.textSize},
       activeSec:S.activeSec
     }));
@@ -1451,6 +1467,7 @@ function loadDocState(){
   if(d.viewMode) S.viewMode=d.viewMode;
   if(d.zoom) S.zoom=clamp(d.zoom,0.4,4);
   if(d.fitMode) S.fitMode=d.fitMode;
+  if(d.penOnly!=null){ S.penOnly=!!d.penOnly; const po=$('#penOnlySwitch'); if(po) po.checked=S.penOnly }
   if(d.tools){
     Object.assign(S.pen,d.tools.pen||{}); Object.assign(S.hl,d.tools.hl||{});
     S.eraser=d.tools.eraser||S.eraser; S.textColor=d.tools.textColor||S.textColor; S.textSize=d.tools.textSize||S.textSize;
@@ -1594,6 +1611,63 @@ window.addEventListener('keydown',e=>{
   applyTool(); updateStraightUI(); renderBookmarks(); renderTextNotes(); noteLayout();
   if(/[?&]sample=1/.test(location.search)) openSample();
 })();
+
+
+/* ================= 펜 전용 필기 · 손가락 핀치줌 (PDF만 확대·앱 틀 고정) ================= */
+const touchPts=new Map(), penPts=new Map();
+let pinch=null;
+function penActive(){ return penPts.size>0 }
+function beginPinch(){
+  if(pinch||!S.pdf) return;
+  if(liveStroke){ liveStroke=null; S.pageViews.forEach(pv=>pv.clearPreview()); note.clearPreview() }
+  handDrag=null; viewer.classList.remove('dragging');
+  const ids=[...touchPts.keys()];
+  if(ids.length<2) return;
+  const a=touchPts.get(ids[0]), b=touchPts.get(ids[1]);
+  const d0=Math.hypot(a.x-b.x,a.y-b.y);
+  if(!(d0>24)) return;
+  const fr=flow.getBoundingClientRect(), mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+  pinch={ida:ids[0], idb:ids[1], d0:d0, z0:S.zoom, ax:mx-fr.left, ay:my-fr.top, m0x:mx, m0y:my, tx:0, ty:0, k:S.zoom};
+  flow.style.willChange='transform';
+}
+function endPinch(){
+  if(!pinch) return;
+  const p=pinch; pinch=null;
+  flow.style.willChange=''; flow.style.transform=''; flow.style.transformOrigin='';
+  S.zoom=p.k; layout(); saveDeb();
+  const fr=flow.getBoundingClientRect(), nx=p.ax*p.k, ny=p.ay*p.k, m1x=p.m0x+p.tx, m1y=p.m0y+p.ty;
+  viewer.scrollLeft+=fr.left+nx-m1x; viewer.scrollTop+=fr.top+ny-m1y;
+}
+viewerWrap.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch') return;
+  touchPts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touchPts.size>=2) beginPinch();
+},true);
+viewerWrap.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!touchPts.has(e.pointerId)||!pinch) return;
+  touchPts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(penActive()) return;
+  const a=touchPts.get(pinch.ida), b=touchPts.get(pinch.idb);
+  if(!a||!b) return;
+  const d=Math.hypot(a.x-b.x,a.y-b.y);
+  if(!(d>0)) return;
+  const mx=(a.x+b.x)/2, my=(a.y+b.y)/2, k=clamp(pinch.z0*(d/pinch.d0),0.4,4);
+  pinch.tx=mx-pinch.m0x; pinch.ty=my-pinch.m0y; pinch.k=k;
+  flow.style.transformOrigin=pinch.ax+'px '+pinch.ay+'px';
+  flow.style.transform='translate('+pinch.tx+'px,'+pinch.ty+'px) scale('+k+')';
+});
+function touchEnded(e){
+  if(e.pointerType!=='touch') return;
+  touchPts.delete(e.pointerId);
+  if(pinch&&(e.pointerId===pinch.ida||e.pointerId===pinch.idb)) endPinch();
+}
+viewerWrap.addEventListener('pointerup',touchEnded,true);
+viewerWrap.addEventListener('pointercancel',touchEnded,true);
+document.addEventListener('pointerdown',e=>{ if(e.pointerType==='pen') penPts.set(e.pointerId,1) },true);
+document.addEventListener('pointerup',e=>{ if(e.pointerType==='pen') penPts.delete(e.pointerId) },true);
+document.addEventListener('pointercancel',e=>{ if(e.pointerType==='pen') penPts.delete(e.pointerId) },true);
+['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1||penActive()) e.preventDefault() },{passive:false});
 </script>
 </body>
 </html>
