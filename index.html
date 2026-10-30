@@ -52,7 +52,7 @@ svg{display:block}
 #topbar{
   height:var(--topbar-h); flex:none; display:flex; align-items:center; gap:10px;
   padding:0 14px; background:var(--surface); border-bottom:1px solid var(--border); z-index:40;
-}
+ position:relative;}
 .brand{display:flex; align-items:center; gap:9px; user-select:none; margin-right:2px}
 .brand .mark{width:30px;height:30px;flex:none}
 .brand .word{font-family:var(--font-serif); font-weight:900; font-size:19px; letter-spacing:.5px; position:relative; padding:1px 6px; white-space:nowrap}
@@ -186,7 +186,7 @@ body.dark .papercell{box-shadow:0 1px 3px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0
 #notePaper{touch-action:none} #notePaper canvas{pointer-events:none}
 
 /* tool rail */
-#toolwrap{position:relative; display:flex; flex:none; min-width:0}
+#toolwrap{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:30; display:flex; flex:none; min-width:0}
 #toolrail{
   display:flex; flex-direction:row; align-items:center; gap:2px; padding:4px 5px;
   background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
@@ -1116,7 +1116,7 @@ function stepPage(dir){if(S.viewMode!=='double'||S.numPages<2)return S.current+d
 function updateViewBtn(m){const b=document.querySelector('#btnSingle');if(!b)return;b.classList.toggle('on',m==='double');const i1=document.querySelector('#icSingle'),i2=document.querySelector('#icDouble');if(i1)i1.style.display=m==='double'?'none':'';if(i2)i2.style.display=m==='double'?'':'none';}
 function setViewMode(m){
   S.viewMode=m;
-  updateViewBtn(m==='single');
+  updateViewBtn(m);
   $('#btnNote').disabled=(m==='double');
   if(m==='double') notePanelEl.classList.add('collapsed');
   if(S.pdf){
@@ -1462,7 +1462,7 @@ function loadDocState(){
     S.eraser=d.tools.eraser||S.eraser; S.textColor=d.tools.textColor||S.textColor; S.textSize=d.tools.textSize||S.textSize;
   }
   S.activeSec=d.activeSec||0;
-  updateViewBtn(S.viewMode==='single');
+  updateViewBtn(S.viewMode);
   $('#btnNote').disabled=S.viewMode==='double';
   $('#btnFit').textContent=FIT_LABELS[S.fitMode]||'폭 맞춤';
   syncToolUI(); updateStraightUI(); renderTextNotes();
@@ -1655,6 +1655,35 @@ document.addEventListener('pointerup',e=>{ if(e.pointerType==='pen') penPts.dele
 document.addEventListener('pointercancel',e=>{ if(e.pointerType==='pen') penPts.delete(e.pointerId) },true);
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1||penActive()) e.preventDefault() },{passive:false});
+
+;(function(){
+  var tap=null,handled=false,suppressT=null,suppressUntil=0;
+  var inDraw=function(el){try{return !!(el&&el.closest&&el.closest('.papercell,#notePaper'))}catch(_){return false}};
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType!=='pen') return;
+    handled=false;
+    if(inDraw(e.target)){tap=null;return;}
+    tap={t:e.target,x:e.clientX,y:e.clientY,ts:Date.now()};
+  },true);
+  document.addEventListener('click',function(e){
+    if(e.__penSynth) return;
+    if(suppressT&&Date.now()<suppressUntil&&(e.target===suppressT||(suppressT.contains&&suppressT.contains(e.target)))){e.stopPropagation();e.preventDefault();return;}
+    if(tap&&(e.target===tap.t||(tap.t.contains&&tap.t.contains(e.target)))) handled=true;
+  },true);
+  document.addEventListener('pointerup',function(e){
+    if(e.pointerType!=='pen'||!tap) return;
+    var t0=tap;
+    if(Math.hypot(e.clientX-t0.x,e.clientY-t0.y)>12||Date.now()-t0.ts>700){tap=null;return;}
+    setTimeout(function(){
+      if(handled||!t0.t||!t0.t.click) return;
+      suppressT=t0.t;suppressUntil=Date.now()+400;
+      var ev;
+      try{ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window})}catch(_){ev=document.createEvent('MouseEvents');ev.initMouseEvent('click',true,true,window,0,0,0,0,0,false,false,false,false,0,null)}
+      try{ev.__penSynth=true;t0.t.dispatchEvent(ev)}catch(_){}
+    },60);
+  },true);
+  document.addEventListener('pointercancel',function(){tap=null;},true);
+})();
 </script>
 </body>
 </html>
