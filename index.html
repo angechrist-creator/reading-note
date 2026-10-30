@@ -260,6 +260,11 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
   transition:margin-right .22s ease;
 }
 #notePanel.collapsed{margin-right:calc(var(--note-w) * -1)}
+#notePanel{position:relative}
+#noteHandle{position:absolute;left:0;top:0;bottom:0;width:16px;cursor:col-resize;touch-action:none;user-select:none;-webkit-user-select:none;z-index:6}
+#noteHandle::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:52px;border-radius:3px;background:var(--border);transition:background .15s ease}
+#noteHandle:hover::after,#noteHandle.on::after{background:var(--muted)}
+#noteHandle:active::after{background:var(--ink)}
 #notePanel .np-head{
   display:flex; align-items:center; gap:4px; padding:10px 12px 0; flex:none;
 }
@@ -1682,6 +1687,7 @@ function updateNoteW(){
     const np=document.getElementById('notePanel');
     if(!np||np.classList.contains('collapsed')) return;
     const cs=getComputedStyle(np);
+    if(rnNoteManual){ let w2=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--note-w'))||0; if(!(w2>0)) w2=parseFloat(cs.width)||392; w2=Math.max(300,Math.min(Math.round(w2),Math.round(window.innerWidth*0.5))); const cur2=parseFloat(cs.width)||0; if(Math.abs(w2-cur2)>1){ document.documentElement.style.setProperty('--note-w',w2+'px'); noteLayout(); } return; }
     const extra=(cs.position==='absolute')?0:(parseFloat(cs.width)||0);
     const vw0=viewer.clientWidth-64+extra;
     if(!(vw0>100)) return;
@@ -1694,6 +1700,45 @@ function updateNoteW(){
 new ResizeObserver(updateNoteW).observe(viewer);
 window.addEventListener('resize',updateNoteW);
 new MutationObserver(updateNoteW).observe(document.getElementById('notePanel'),{attributes:true,attributeFilter:['class']});
+var rnNoteManual=false;
+try{ const rw=parseFloat(localStorage.getItem('rn:noteW')); if(rw>0){ rnNoteManual=true; document.documentElement.style.setProperty('--note-w',Math.round(rw)+'px'); } }catch(_){}
+;(function(){
+  const np2=document.getElementById('notePanel');
+  if(!np2) return;
+  let nh=document.getElementById('noteHandle');
+  if(!nh){ nh=document.createElement('div'); nh.id='noteHandle'; nh.title='드래그: 폭 조절 · 두 번 탭: 자동'; np2.insertBefore(nh,np2.firstChild); }
+  let dg=null, lt2=0;
+  const clampW=function(w){ return Math.max(300,Math.min(Math.round(w),Math.round(window.innerWidth*0.5))) };
+  nh.addEventListener('pointerdown',function(e){
+    if(e.button&&e.button!==0) return;
+    if(np2.classList.contains('collapsed')) return;
+    dg={id:e.pointerId,x0:e.clientX,r0:np2.getBoundingClientRect().right};
+    try{nh.setPointerCapture(e.pointerId)}catch(_){}
+    nh.classList.add('on');
+    e.preventDefault();
+  });
+  nh.addEventListener('pointermove',function(e){
+    if(!dg||e.pointerId!==dg.id) return;
+    const dx=dg.x0-e.clientX;
+    if(Math.abs(dx)<2) return;
+    document.documentElement.style.setProperty('--note-w',clampW(dg.r0-e.clientX)+'px');
+    rnNoteManual=true;
+    try{localStorage.setItem('rn:noteW',document.documentElement.style.getPropertyValue('--note-w'))}catch(_){}
+    noteLayout();
+    e.preventDefault();
+  });
+  const end=function(e){
+    if(!dg||e.pointerId!==dg.id) return;
+    const moved=Math.abs(e.clientX-dg.x0);
+    dg=null; nh.classList.remove('on');
+    const now=Date.now();
+    if(moved>12){ lt2=0; return }
+    if(now-lt2<400){ lt2=0; rnNoteManual=false; try{localStorage.removeItem('rn:noteW')}catch(_){} updateNoteW(); return }
+    lt2=now;
+  };
+  nh.addEventListener('pointerup',end);
+  nh.addEventListener('pointercancel',end);
+})();
 ;(function(){
   var tap=null,suppressT=null,suppressUntil=0,synthBusy=false;
   var inDraw=function(el){try{return !!(el&&el.closest&&el.closest('.papercell,#notePaper'))}catch(_){return false}};
