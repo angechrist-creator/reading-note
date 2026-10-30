@@ -775,7 +775,7 @@ async function openPdfData(data,name,size){
     updateUndoUI(); syncToolUI(); applyTool();
     rebuildRows();
     requestAnimationFrame(()=>{ layout(); goToPage(S.lastPage||1,true) });
-    startClock();
+    startClock(); updateNoteW();
     toast(`「${name}」 · ${S.numPages}쪽 열림`);
   }catch(err){
     console.error(err);
@@ -838,7 +838,7 @@ function syncTurn(dir,force){
 }
 
 /* ================= 필기 엔진 ================= */
-let liveStroke=null, erasing=false, handDrag=null;
+let liveStroke=null, erasing=false, handDrag=null, touchSwipe=null;
 function canvasPos(e,pv){
   const r=pv.annCanvas.getBoundingClientRect(); const xw=r.width||1;
   return [clamp((e.clientX-r.left)/xw,0,1), clamp((e.clientY-r.top)/xw,0,r.height/xw)];
@@ -849,12 +849,14 @@ function onCanvasDown(e,pv){
   if(e.pointerType==='touch'&&(S.tool==='hand'||S.penOnly)){
     if(pv.storeKey==='note') return;
     handDrag={x:e.clientX,y:e.clientY,l:viewer.scrollLeft,t:viewer.scrollTop};
+    touchSwipe={x:e.clientX,y:e.clientY,t:Date.now()};
     pv.el.setPointerCapture(e.pointerId);
     return;
   }
   if(S.tool==='hand'){
     if(pv.storeKey==='note') return;
     handDrag={x:e.clientX,y:e.clientY,l:viewer.scrollLeft,t:viewer.scrollTop};
+    if(e.pointerType==='touch') touchSwipe={x:e.clientX,y:e.clientY,t:Date.now()};
     viewer.classList.add('dragging');
     pv.el.setPointerCapture(e.pointerId);
     return;
@@ -895,7 +897,15 @@ function onCanvasMove(e,pv){
   }
 }
 function onCanvasUp(e,pv){
-  if(handDrag){ handDrag=null; viewer.classList.remove('dragging'); return }
+  if(handDrag){
+    handDrag=null; viewer.classList.remove('dragging');
+    if(e.pointerType==='touch'&&touchSwipe){
+      const dx=e.clientX-touchSwipe.x, dy=e.clientY-touchSwipe.y, dt=Date.now()-touchSwipe.t;
+      touchSwipe=null;
+      if(dt<600&&Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.6){ goToPage(stepPage(dx<0?1:-1)); return }
+    }
+    return;
+  }
   if(liveStroke){
     const st=liveStroke; liveStroke=null;
     if(st.straight&&st.points.length>1) st.points=[st.points[0],st.points[st.points.length-1]];
@@ -1616,7 +1626,7 @@ function penActive(){ return penPts.size>0 }
 function beginPinch(){
   if(pinch||!S.pdf) return;
   if(liveStroke){ liveStroke=null; S.pageViews.forEach(pv=>pv.clearPreview()); note.clearPreview() }
-  handDrag=null; viewer.classList.remove('dragging');
+  handDrag=null; viewer.classList.remove('dragging'); touchSwipe=null;
   const ids=[...touchPts.keys()];
   if(ids.length<2) return;
   const a=touchPts.get(ids[0]), b=touchPts.get(ids[1]);
@@ -1665,6 +1675,25 @@ document.addEventListener('pointercancel',e=>{ if(e.pointerType==='pen') penPts.
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1||penActive()) e.preventDefault() },{passive:false});
 
+/* ==== 메모장 폭 = 한 페이지 폭 (열려 있을 때) ==== */
+function updateNoteW(){
+  try{
+    if(!S.pdf||!S.w1) return;
+    const np=document.getElementById('notePanel');
+    if(!np||np.classList.contains('collapsed')) return;
+    const cs=getComputedStyle(np);
+    const extra=(cs.position==='absolute')?0:(parseFloat(cs.width)||0);
+    const vw0=viewer.clientWidth-64+extra;
+    if(!(vw0>100)) return;
+    let pw=S.viewMode==='double'?((vw0-24)/2):vw0;
+    pw=Math.max(300,Math.min(Math.round(pw),Math.round(window.innerWidth*0.62)));
+    const cur=parseFloat(cs.width)||0;
+    if(Math.abs(pw-cur)>1){ document.documentElement.style.setProperty('--note-w',pw+'px'); noteLayout(); }
+  }catch(_){}
+}
+new ResizeObserver(updateNoteW).observe(viewer);
+window.addEventListener('resize',updateNoteW);
+new MutationObserver(updateNoteW).observe(document.getElementById('notePanel'),{attributes:true,attributeFilter:['class']});
 ;(function(){
   var tap=null,suppressT=null,suppressUntil=0,synthBusy=false;
   var inDraw=function(el){try{return !!(el&&el.closest&&el.closest('.papercell,#notePaper'))}catch(_){return false}};
