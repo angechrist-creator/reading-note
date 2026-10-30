@@ -470,8 +470,7 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
   </div>
   <div class="spacer"></div>
   <div class="seg" id="viewSeg">
-    <button id="btnSingle" class="on" title="한 페이지 모드"><svg class="ic sm" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg>한 페이지</button>
-    <button id="btnDouble" title="두 페이지 보기 (가로 배치)"><svg class="ic sm" viewBox="0 0 24 24"><rect x="2.5" y="4" width="8.5" height="16" rx="1"/><rect x="13" y="4" width="8.5" height="16" rx="1"/></svg>두 페이지</button>
+    <button id="btnSingle" title="한/두 페이지 보기 전환 (D)"><svg id="icSingle" class="ic sm" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg><svg id="icDouble" class="ic sm" viewBox="0 0 24 24" style="display:none"><rect x="2.5" y="4" width="8.5" height="16" rx="1"/><rect x="13" y="4" width="8.5" height="16" rx="1"/></svg><span id="viewLbl">한 페이지</span></button>
   </div>
   <button id="btnNote" class="iconbtn" title="필기 메모장 (N)"><svg class="ic" viewBox="0 0 24 24"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9l7-7V5a2 2 0 0 0-2-2Z"/><path d="M14 21v-5a2 2 0 0 1 2-2h5"/></svg></button>
   <button id="btnTheme" class="iconbtn" title="다크 모드"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
@@ -509,7 +508,6 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
         <div class="hero">독서노트</div>
         <div class="cta-row">
           <button class="btn primary" id="emptyOpen"><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.2 3.9A2 2 0 0 0 7.5 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>PDF 파일 열기</button>
-          <button class="btn" id="emptySample">샘플로 체험하기</button>
         </div>
       </div>
     </div>
@@ -1114,10 +1112,10 @@ $('#btnClearPage').addEventListener('click',()=>{
 });
 
 /* ================= 보기 모드 / 메모장 패널 ================= */
+function updateViewBtn(m){const b=document.querySelector('#btnSingle');if(!b)return;b.classList.toggle('on',m==='double');const l=document.querySelector('#viewLbl');if(l)l.textContent=m==='double'?'두 페이지':'한 페이지';const i1=document.querySelector('#icSingle'),i2=document.querySelector('#icDouble');if(i1)i1.style.display=m==='double'?'none':'';if(i2)i2.style.display=m==='double'?'':'none';}
 function setViewMode(m){
   S.viewMode=m;
-  $('#btnSingle').classList.toggle('on',m==='single');
-  $('#btnDouble').classList.toggle('on',m==='double');
+  updateViewBtn(m==='single');
   $('#btnNote').disabled=(m==='double');
   if(m==='double') notePanelEl.classList.add('collapsed');
   if(S.pdf){
@@ -1126,8 +1124,7 @@ function setViewMode(m){
     saveDeb();
   }
 }
-$('#btnSingle').addEventListener('click',()=>setViewMode('single'));
-$('#btnDouble').addEventListener('click',()=>setViewMode('double'));
+$('#btnSingle').addEventListener('click',()=>setViewMode(S.viewMode==='single'?'double':'single'));
 function toggleNote(){
   if(S.viewMode==='double'){ toast('두 페이지 보기에서는 메모장을 사용할 수 없습니다'); return }
   notePanelEl.classList.toggle('collapsed');
@@ -1464,8 +1461,7 @@ function loadDocState(){
     S.eraser=d.tools.eraser||S.eraser; S.textColor=d.tools.textColor||S.textColor; S.textSize=d.tools.textSize||S.textSize;
   }
   S.activeSec=d.activeSec||0;
-  $('#btnSingle').classList.toggle('on',S.viewMode==='single');
-  $('#btnDouble').classList.toggle('on',S.viewMode==='double');
+  updateViewBtn(S.viewMode==='single');
   $('#btnNote').disabled=S.viewMode==='double';
   $('#btnFit').textContent=FIT_LABELS[S.fitMode]||'폭 맞춤';
   syncToolUI(); updateStraightUI(); renderTextNotes();
@@ -1561,7 +1557,6 @@ async function openSample(){
   for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
   openPdfData(arr,'읽는 습관 (샘플).pdf',arr.length);
 }
-$('#emptySample').addEventListener('click',openSample);
 
 /* ================= 독서 시간 / 단축키 / 초기화 ================= */
 let clockT=null;
