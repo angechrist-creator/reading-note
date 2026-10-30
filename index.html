@@ -99,12 +99,6 @@ svg{display:block}
 }
 #sidebar.collapsed{margin-left:calc(var(--sidebar-w) * -1)}
 #sidebar{transition:margin-left .22s ease}
-#sideTab{display:none; position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:30;
-  width:26px; height:64px; padding:0; border:1px solid var(--border); border-left:none; border-radius:0 10px 10px 0;
-  background:var(--surface); align-items:center; justify-content:center; color:var(--ink-2); cursor:pointer;
-  box-shadow:2px 0 10px rgba(0,0,0,.10)}
-body.side-closed #sideTab{display:flex}
-#sideTab:hover{color:var(--ink); background:var(--surface-2)}
 .sidebar-tabs{display:flex; padding:8px 8px 0; gap:2px; flex:none}
 .sidebar-tabs button{
   flex:1; height:32px; border-radius:8px 8px 0 0; font-size:12px; font-weight:700; color:var(--muted);
@@ -486,7 +480,6 @@ input[type=range]{width:100%; accent-color:var(--star); height:22px; cursor:poin
 </header>
 
 <div id="main">
-  <button id="sideTab" title="사이드바 펼치기"><svg class="ic" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
   <aside id="sidebar">
     <div class="sidebar-tabs">
       <button data-tab="thumbs" class="on"><svg class="ic sm" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>썸네일</button>
@@ -1201,7 +1194,6 @@ function applySidebar(open){
   try{ const g=JSON.parse(localStorage.getItem('rn:global')||'{}'); g.sideOpen=open; localStorage.setItem('rn:global',JSON.stringify(g)) }catch(e){}
 }
 $('#btnSidebar').addEventListener('click',()=>applySidebar($('#sidebar').classList.contains('collapsed')));
-$('#sideTab').addEventListener('click',()=>applySidebar(true));
 let thumbItems=[], thumbIdx=0, thumbBusy=false;
 function buildThumbs(){
   const grid=$('#thumbGrid'); grid.innerHTML=''; thumbItems=[]; thumbIdx=0;
