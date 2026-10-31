@@ -814,7 +814,7 @@ function layout(){
   const per=S.viewMode==='double'?2:1, gutter=0;
   const fitW=(vw-gutter*(per-1))/S.w1;
   const base=S.fitMode==='fit-height'?vh/S.h1:(S.fitMode==='fit-page'?Math.min(fitW,vh/S.h1):fitW);
-  const cw=S.w1*base*S.zoom, ch=S.h1*base*S.zoom;
+  const cw=S.w1*base*S.zoom, ch=S.h1*base*S.zoom; S.fitBase=base;
   S.pageViews.forEach(pv=>pv.setSize(cw,ch));
   $('#zoomPct').textContent=Math.round(base*S.zoom*100)+'%';
 }
@@ -1433,8 +1433,8 @@ $('#btnPrev').addEventListener('click',()=>goToPage(stepPage(-1)));
 $('#btnNext').addEventListener('click',()=>goToPage(stepPage(1)));
 $('#pageInput').addEventListener('change',e=>goToPage(+e.target.value));
 $('#pageInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ goToPage(+e.target.value); e.target.blur() } });
-$('#btnZoomIn').addEventListener('click',()=>{ S.zoom=clamp(S.zoom*1.2,0.4,4); layout(); saveDeb() });
-$('#btnZoomOut').addEventListener('click',()=>{ S.zoom=clamp(S.zoom/1.2,0.4,4); layout(); saveDeb() });
+$('#btnZoomIn').addEventListener('click',()=>{ S.zoom=clamp(S.zoom+0.01/(S.fitBase||1),0.4,4); layout(); saveDeb() });
+$('#btnZoomOut').addEventListener('click',()=>{ S.zoom=clamp(S.zoom-0.01/(S.fitBase||1),0.4,4); layout(); saveDeb() });
 $('#zoomPct').addEventListener('click',()=>{ S.zoom=1; layout(); saveDeb(); toast('기본 배율로 돌아왔습니다') });
 $('#btnFit').addEventListener('click',()=>{
   const order=['fit-width','fit-height','fit-page'];
