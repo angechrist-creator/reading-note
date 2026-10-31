@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>독서노트 — PDF 읽고 필기하기</title>
+<meta name="theme-color" content="#F5D93F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="독서노트">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='3' width='24' height='26' rx='4' fill='%23F5D93F'/%3E%3Cpath d='M9 10h14M9 15h14M9 20h9' stroke='%23242A31' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;900&display=swap">
@@ -480,6 +487,31 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
 #shareMenu button:hover{background:var(--accent-soft)}
 @media (max-width:700px){ .lib-grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:10px; padding:12px} }
 
+/* ==== P1: 독서 통계 패널 ==== */
+#statOverlay{position:fixed; inset:0; z-index:96; background:rgba(20,24,30,.55); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:20px}
+#statOverlay.hidden{display:none}
+.stat-sheet{width:min(480px,100%); max-height:min(640px,100%); overflow:auto; background:var(--surface); border-radius:var(--r-l); box-shadow:var(--shadow-2); padding:18px}
+.stat-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
+.stat-head b{font-size:17px; color:var(--ink)}
+.stat-close{border:none; background:var(--surface-2); color:var(--ink-2); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:14px; line-height:1}
+.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px}
+.stat-cell{background:var(--surface-2); border-radius:var(--r-m); padding:10px 6px; text-align:center}
+.stat-cell span{display:block; font-size:11px; color:var(--muted); margin-bottom:4px}
+.stat-cell b{font-size:13px; color:var(--ink)}
+.stat-row2{font-size:12px; color:var(--ink-2); background:var(--surface-2); border-radius:var(--r-s); padding:8px 12px; margin-bottom:12px}
+.stat-row2 b{color:var(--ink)}
+.stat-list{display:flex; flex-direction:column; gap:8px}
+.stat-book{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-2); border-radius:var(--r-m); padding:10px 12px}
+.sb-info{min-width:0}
+.sb-title{font-size:13px; font-weight:700; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px}
+.sb-sub{font-size:11px; color:var(--muted); margin-top:2px}
+.sb-right{text-align:right; flex:none}
+.sb-right b{font-size:12px; color:var(--ink)}
+.sb-bar{width:110px; height:5px; background:var(--line); border-radius:3px; margin-top:5px; overflow:hidden}
+.sb-bar i{display:block; height:100%; background:var(--accent); border-radius:3px}
+.pane-empty{text-align:center; color:var(--muted); font-size:12px; padding:26px 10px; line-height:1.6}
+@media (max-width:520px){ .stat-grid{grid-template-columns:repeat(2,1fr)} .sb-title{max-width:170px} }
+
 </style>
 </head>
 <body>
@@ -628,7 +660,7 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
     <span class="chip" title="읽은 페이지 기준 독서 진도"><span class="dot"></span>진도 <b id="progPct">0%</b></span>
     <span class="chip" title="이번 세션 독서 시간"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b id="timeMin">0분</b></span>
   </div>
-  <div class="st-group">    <button id="btnLib" class="btn ghost" title="책장 (기기에 저장한 책 목록)" style="height:30px;padding:0 10px;font-size:12px">책장</button>    <button id="btnShare" class="iconbtn" title="공유/내보내기"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>  </div>  <button id="btnOpen" class="btn primary" title="PDF 파일 열기" style="height:30px;padding:0 10px;font-size:12px"><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.2 3.9A2 2 0 0 0 7.5 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span class="btn-label">파일 열기</span></button>
+  <div class="st-group">    <button id="btnFind" class="iconbtn" title="본문 검색"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>    <button id="btnStat" class="iconbtn" title="독서 통계"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h16M7 20v-6M12 20V8M17 20v-4"/></svg></button>  </div>  <div class="st-group">    <button id="btnLib" class="btn ghost" title="책장 (기기에 저장한 책 목록)" style="height:30px;padding:0 10px;font-size:12px">책장</button>    <button id="btnShare" class="iconbtn" title="공유/내보내기"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>  </div>  <button id="btnOpen" class="btn primary" title="PDF 파일 열기" style="height:30px;padding:0 10px;font-size:12px"><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.2 3.9A2 2 0 0 0 7.5 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span class="btn-label">파일 열기</span></button>
   <button id="starBtn" class="iconbtn" title="이 페이지 북마크"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.5l6.5-.9L12 2.7Z"/></svg></button>
   <div class="st-sep"></div>
   <div class="st-group">
@@ -846,6 +878,7 @@ async function openPdfData(data,name,size){
     rebuildRows();
     requestAnimationFrame(()=>{ layout(); goToPage(S.lastPage||1,true) });
     try{ if(window.RNLib){ RNLib.onOpened(S.storeKey,String(name),size,S.numPages); RNLib.makeCover(pdf,S.storeKey) } }catch(_){}
+    try{ if(window.RNP1) RNP1.onOpened(S.storeKey,String(name),size,S.numPages) }catch(_){}
     startClock(); updateNoteW();
     toast(`「${name}」 · ${S.numPages}쪽 열림`);
   }catch(err){
@@ -894,7 +927,7 @@ function goToPage(n,force){
   const dir=n>S.current?'next':(n<S.current?'prev':null);
   S.current=n; S.maxSeen=Math.max(S.maxSeen,n);
   syncTurn(dir,force);
-  updateStatusBar(); highlightThumb(); $('#pageInput').value=n; try{ if(window.RNLib) RNLib.onProgress(S.storeKey,n) }catch(_){} saveDeb();
+  updateStatusBar(); highlightThumb(); $('#pageInput').value=n; try{ if(window.RNLib) RNLib.onProgress(S.storeKey,n) }catch(_){} try{ if(window.RNP1) RNP1.onProgress(S.storeKey,n) }catch(_){} saveDeb();
 }
 function syncTurn(dir,force){
   const rows=[...flow.children]; let target=null;
@@ -1425,21 +1458,30 @@ async function doSearch(){
   S.searchHits={}; S.pageViews.forEach(pv=>{ if(pv.rendered) pv.redrawHits() });
   const res=$('#searchResults'); res.innerHTML='';
   const meta=$('#searchMeta'); meta.textContent='검색 중…';
-  const items=[]; let count=0, pages=0;
+  const items=[]; let count=0, pages=0, hasText=false;
   for(let n=1;n<=S.numPages;n++){
     try{
       const page=await S.pdf.getPage(n);
       const tc=await page.getTextContent();
       let full=''; const starts=[];
       for(const it of tc.items){ if(!it.str) continue; starts.push({s:full.length,it}); full+=it.str+' ' }
-      const lower=full.toLowerCase(), ql=q.toLowerCase();
+      if(full.replace(/\s/g,'').length>30) hasText=true;
+      const comp=[], map=[];
+      for(let i=0;i<full.length;i++){ const ch=full[i]; if(/\s/.test(ch)) continue; comp.push(ch.toLowerCase()); map.push(i) }
+      const cs=comp.join(''), ql=q.replace(/\s+/g,'').toLowerCase();
       let pos=0;
-      while((pos=lower.indexOf(ql,pos))!==-1){
-        const holder=starts.find(x=>pos>=x.s&&pos<x.s+x.it.str.length);
-        count++;
-        items.push({n, snippet:full.slice(Math.max(0,pos-20),pos+ql.length+26).trim(),
-          holder:holder?holder.it:null, off:holder?pos-holder.s:0});
-        pos+=ql.length;
+      if(ql.length){
+        while((pos=cs.indexOf(ql,pos))!==-1){
+          const o0=map[pos], o1=map[pos+ql.length-1];
+          const holder=starts.find(x=>o0>=x.s&&o0<x.s+x.it.str.length);
+          count++;
+          let sn=full.slice(Math.max(0,o0-20),o1+27);
+          const cut=sn.length-sn.trimStart().length;
+          sn=sn.trim();
+          items.push({n, snippet:sn, mAt:o0-Math.max(0,o0-20)-cut, mLen:o1-o0+1,
+            holder:holder?holder.it:null, off:holder?o0-holder.s:0, qlen:o1-o0+1});
+          pos+=ql.length;
+        }
       }
     }catch(e){}
     pages++;
@@ -1458,26 +1500,24 @@ async function doSearch(){
         const m=pdfjsLib.Util.transform(vp1.transform,item.transform);
         const fh=Math.hypot(m[2],m[3])||item.height||12;
         const cpl=item.str.length?item.width/item.str.length:6;
-        rects.push({left:m[4]+it.off*cpl, top:m[5]-fh*1.05, w:Math.max(cpl*q.length,cpl), h:fh*1.25});
+        rects.push({left:m[4]+it.off*cpl, top:m[5]-fh*1.05, w:Math.max(cpl*it.qlen,cpl), h:fh*1.25});
       }
       S.searchHits[+nStr]=rects;
       const pv=S.pageViews.get(+nStr); if(pv&&pv.rendered) pv.redrawHits();
     }catch(e){}
   }
-  meta.textContent=count?`${count}건 발견 — 항목을 누르면 해당 페이지로 이동합니다`:'검색 결과가 없습니다';
+  meta.textContent=count?`${count}건 발견 — 항목을 누르면 해당 페이지로 이동합니다`:(hasText?'검색 결과가 없습니다':'이 PDF에는 텍스트 레이어가 없습니다 (스캔본일 수 있어요)');
   for(const it of items.slice(0,200)){
     const d=document.createElement('div'); d.className='sr-item';
-    d.innerHTML=`<span class="sr-page">p.${it.n}</span>`+hlSnippet(it.snippet,q);
+    d.innerHTML=`<span class="sr-page">p.${it.n}</span>`+hlSnippet(it.snippet,it.mAt,it.mLen);
     d.addEventListener('click',()=>goToPage(it.n));
     res.appendChild(d);
   }
   if(!count) res.innerHTML='<div class="pane-empty">다른 검색어로 시도해 보세요</div>';
   searching=false;
 }
-function hlSnippet(sn,q){
-  const i=sn.toLowerCase().indexOf(q.toLowerCase());
-  if(i<0) return esc(sn);
-  return esc(sn.slice(0,i))+'<b>'+esc(sn.slice(i,i+q.length))+'</b>'+esc(sn.slice(i+q.length));
+function hlSnippet(sn,mAt,mLen){
+  return esc(sn.slice(0,mAt))+'<b>'+esc(sn.slice(mAt,mAt+mLen))+'</b>'+esc(sn.slice(mAt+mLen));
 }
 $('#searchBtn').addEventListener('click',doSearch);
 $('#searchInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch() });
@@ -2102,6 +2142,133 @@ function init(){
 }
 try{ init() }catch(_){}
 window.RNLib={onOpened:onOpened, onProgress:onProgress, makeCover:makeCover, show:()=>toggleLib(true)};
+})();
+
+</script>
+<script>
+/* ==== 독서 통계 · PWA (RNP1) ==== */
+(function(){
+'use strict';
+const SS='rn:stats';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const dayKey=off=>{ const d=new Date(); d.setDate(d.getDate()-off); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()) };
+const today=()=>dayKey(0);
+let ST=null;
+function load(){ if(ST) return ST; try{ ST=JSON.parse(localStorage.getItem(SS)||'{}') }catch(_){ ST={} } ST.days=ST.days||{}; ST.books=ST.books||{}; return ST }
+function save(){ try{ localStorage.setItem(SS,JSON.stringify(ST)) }catch(_){} }
+function fmt(sec){ if(sec<3600) return Math.max(0,Math.round(sec/60))+'분'; return Math.floor(sec/3600)+'시간 '+Math.round((sec%3600)/60)+'분' }
+
+/* ---- 열림/진도 훅 (앱에서 호출) ---- */
+let openK=null;
+function onOpened(k,name,numPages){
+  openK=k;
+  const st=load();
+  const b=st.books[k]||(st.books[k]={bt:0,last:Date.now(),pages:0});
+  b.name=String(name||'').replace(/\.pdf$/i,'');
+  b.last=Date.now();
+  if(numPages) b.np=numPages;
+  save();
+}
+function onProgress(k,n){
+  const st=load();
+  const b=st.books[k]||(st.books[k]={bt:0,last:Date.now(),pages:0});
+  if(n>(b.pages||0)) b.pages=n;
+  b.last=Date.now();
+  save();
+}
+
+/* ---- 독서 시간 기록 (30초 하트비트, 탭 보일 때만) ---- */
+setInterval(()=>{
+  if(!openK||document.hidden||!window.S||!S.pdf) return;
+  const st=load(), t=today();
+  st.days[t]=(st.days[t]||0)+30;
+  const b=st.books[openK]||(st.books[openK]={bt:0,last:Date.now(),pages:0});
+  b.bt=(b.bt||0)+30; b.last=Date.now();
+  save();
+},30000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&openK){ const st=load(); if(st.books[openK]){ st.books[openK].last=Date.now(); save() } }
+});
+
+/* ---- 통계 패널 ---- */
+let statEl=null;
+function rnlibReg(){ try{ const v=JSON.parse(localStorage.getItem('rn:lib')||'[]'); return Array.isArray(v)?v:[] }catch(_){ return [] } }
+function showStats(){
+  const st=load();
+  const reg=rnlibReg();
+  const regMap={}; reg.forEach(e=>{ regMap[e.k]=e });
+  const t=today();
+  let week=0, total=0;
+  for(const k of Object.keys(st.days)) total+=st.days[k];
+  for(let i=0;i<7;i++) week+=st.days[dayKey(i)]||0;
+  let streak=0;
+  { let off=(st.days[t]>0)?0:1;
+    for(let i=0;i<400;i++){ if((st.days[dayKey(off+i)]||0)>0) streak++; else break } }
+  const books=Object.entries(st.books).sort((a,b)=>(b[1].last||0)-(a[1].last||0));
+  const reading=reg.filter(e=>e.status==='reading').length;
+  const done=reg.filter(e=>e.status==='done').length;
+  let avg=0; { const r=reg.filter(e=>e.rating>0); if(r.length) avg=r.reduce((a,e)=>a+e.rating,0)/r.length }
+  const rows=books.map(pair=>{
+    const k=pair[0], b=pair[1]||{};
+    const r=regMap[k]||{};
+    const title=r.title||b.name||k;
+    const prog=(r.prog!=null&&r.prog!=='')?+r.prog:(b.np?Math.min(100,Math.round((b.pages||0)/b.np*100)):null);
+    const st2=r.status==='done'?'완독':(r.status==='reading'?'읽는 중':'');
+    const stars=r.rating>0?' · '+'★'.repeat(Math.min(5,r.rating)):'';
+    let bar='';
+    if(prog!=null&&isFinite(prog)) bar='<div class="sb-bar"><i style="width:'+Math.max(0,Math.min(100,prog))+'%"></i></div>';
+    return '<div class="stat-book"><div class="sb-info"><div class="sb-title">'+esc(title)+'</div>'+
+      '<div class="sb-sub">'+esc(st2)+stars+'</div></div>'+
+      '<div class="sb-right"><b>'+fmt(b.bt||0)+'</b>'+bar+'</div></div>';
+  }).join('');
+  if(!statEl){
+    statEl=document.createElement('div'); statEl.id='statOverlay'; statEl.className='hidden';
+    document.body.appendChild(statEl);
+  }
+  statEl.innerHTML=
+    '<div class="stat-sheet">'+
+    '<div class="stat-head"><b>독서 통계</b><button class="stat-close" aria-label="닫기">✕</button></div>'+
+    '<div class="stat-grid">'+
+      '<div class="stat-cell"><span>오늘</span><b>'+fmt(st.days[t]||0)+'</b></div>'+
+      '<div class="stat-cell"><span>최근 7일</span><b>'+fmt(week)+'</b></div>'+
+      '<div class="stat-cell"><span>전체</span><b>'+fmt(total)+'</b></div>'+
+      '<div class="stat-cell"><span>연속</span><b>'+(streak||0)+'일</b></div>'+
+    '</div>'+
+    '<div class="stat-row2">보유 <b>'+reg.length+'</b>권 · 읽는 중 <b>'+reading+'</b> · 완독 <b>'+done+'</b>권'+(avg?' · 평균 <b>★'+avg.toFixed(1)+'</b>':'')+'</div>'+
+    '<div class="stat-list">'+(rows||'<div class="pane-empty">아직 기록이 없습니다<br>책을 열면 자동으로 기록됩니다</div>')+'</div>'+
+    '</div>';
+  statEl.classList.remove('hidden');
+  statEl.querySelector('.stat-close').addEventListener('click',hideStats);
+}
+function hideStats(){ if(statEl) statEl.classList.add('hidden') }
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&statEl&&!statEl.classList.contains('hidden')) hideStats();
+});
+
+/* ---- 툴바 버튼 ---- */
+const bf=document.getElementById('btnFind');
+if(bf) bf.addEventListener('click',()=>{
+  try{
+    const sb=document.getElementById('sidebar'); if(sb) sb.classList.remove('collapsed');
+    const tab=document.querySelector('[data-tab="search"]'); if(tab) tab.click();
+    const inp=document.getElementById('searchInput'); if(inp) setTimeout(()=>{ try{ inp.focus() }catch(_){} },60);
+  }catch(_){}
+});
+const bs=document.getElementById('btnStat');
+if(bs) bs.addEventListener('click',()=>{
+  if(statEl&&!statEl.classList.contains('hidden')) hideStats(); else showStats();
+});
+
+/* ---- PWA: 서비스 워커 등록 ---- */
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',()=>{
+    try{ navigator.serviceWorker.register(new URL('sw.js',location.href).href).catch(()=>{}) }catch(_){}
+  });
+}
+
+window.RNP1={onOpened:onOpened, onProgress:onProgress, showStats:showStats};
 })();
 
 </script>
