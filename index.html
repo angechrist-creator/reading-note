@@ -1738,7 +1738,7 @@ function updateNoteW(){
     const extra=(cs.position==='absolute')?0:(parseFloat(cs.width)||0);
     const vw0=viewer.clientWidth-24+extra;
     if(!(vw0>100)) return;
-    let pw=S.viewMode==='double'?((vw0-24)/2):vw0;
+    let pw=S.viewMode==='double'?(vw0/2):vw0;
     pw=Math.min(Math.round(pw),Math.round(window.innerWidth*0.5)); pw=Math.max(Math.min(300,Math.round(window.innerWidth*0.5)),pw);
     const cur=parseFloat(cs.width)||0;
     if(Math.abs(pw-cur)>1){ document.documentElement.style.setProperty('--note-w',pw+'px'); noteLayout(); }
