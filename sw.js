@@ -1,5 +1,5 @@
-const CV='rn-v1';
-const SHELL=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
+const CV='rn-v2';
+const SHELL=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./pdf-lib.min.js'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CV).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()).catch(()=>{}));
 });

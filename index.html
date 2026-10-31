@@ -514,6 +514,42 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
 
 #topbar .brand{display:flex;align-items:center;gap:8px}
 #topbar .brand .st-group{display:flex;align-items:center;gap:6px;margin:0}
+
+/* ==== P2: 테마 팝업 · 목표 · 카드 · 동기화 ==== */
+#rnp2ThemePop{position:fixed;z-index:97;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);box-shadow:var(--shadow-2);padding:8px;min-width:210px;display:flex;flex-direction:column;gap:2px}
+#rnp2ThemePop button{border:0;background:transparent;text-align:left;font:600 13px var(--font-ui);color:var(--ink);padding:9px 12px;border-radius:var(--r-s);cursor:pointer}
+#rnp2ThemePop button.on{background:var(--accent-soft);font-weight:800}
+#rnp2ThemePop .rp-title{font:700 11px var(--font-ui);color:var(--muted);padding:4px 12px}
+.rp-bright{display:flex;align-items:center;gap:8px;padding:8px 12px 4px;font:600 12px var(--font-ui);color:var(--muted)}
+.rp-bright input{flex:1;accent-color:var(--accent)}
+.rp-bright b{font:700 12px var(--font-ui);color:var(--ink);min-width:38px;text-align:right}
+.rnp2-goal{margin:10px 14px 2px;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-s)}
+.rg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rg-head b{font:800 12px var(--font-ui);color:var(--ink)}
+.rg-edit{border:0;background:transparent;color:var(--muted);font:600 11px var(--font-ui);cursor:pointer;text-decoration:underline}
+.rg-item{margin:6px 0;font:600 12px var(--font-ui);color:var(--ink);display:flex;flex-direction:column;gap:4px}
+.rg-bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.rg-bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+#rnp2Quote,#rnp2Sync{position:fixed;inset:0;z-index:96;background:rgba(20,24,30,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px}
+.rp-sheet{width:min(420px,100%);max-height:min(620px,100%);overflow:auto;background:var(--surface);border-radius:var(--r-l);box-shadow:var(--shadow-2);padding:16px;display:flex;flex-direction:column;gap:10px}
+.rp-head{display:flex;justify-content:space-between;align-items:center}
+.rp-head b{font:800 15px var(--font-ui);color:var(--ink)}
+.rp-x{border:0;background:transparent;font:700 15px var(--font-ui);color:var(--muted);cursor:pointer}
+#rnp2Quote textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:110px;border:1px solid var(--border);border-radius:var(--r-s);padding:10px;font:500 14px/1.6 var(--font-ui);color:var(--ink);background:var(--bg)}
+.rp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rp-row input{border:1px solid var(--border);border-radius:var(--r-s);padding:8px 10px;font:600 13px var(--font-ui);color:var(--ink);background:var(--bg);flex:1;min-width:0}
+.rp-lab{font:600 12px var(--font-ui);color:var(--muted)}
+.rp-pal{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex:0 0 auto}
+.rp-pal[data-p="cream"]{background:#FAF6EE}.rp-pal[data-p="dark"]{background:#15191E}.rp-pal[data-p="green"]{background:#EEF2EC}
+.rp-pal.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.rp-btns{display:flex;gap:8px}
+.rp-btns button{flex:1;border:1px solid var(--border);background:transparent;color:var(--ink);font:700 13px var(--font-ui);padding:10px;border-radius:var(--r-s);cursor:pointer}
+.rp-btns .rp-pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rp-note{font:500 11px/1.5 var(--font-ui);color:var(--muted)}
+.rp-f{display:flex;flex-direction:column;gap:4px;font:600 11px var(--font-ui);color:var(--muted);flex:1}
+.rp-f input{border:1px solid var(--border);border-radius:var(--r-s);padding:8px 10px;font:600 13px var(--font-ui);color:var(--ink);background:var(--bg);box-sizing:border-box;width:100%}
+.rp-check{display:flex;align-items:center;gap:8px;font:600 12px var(--font-ui);color:var(--ink)}
+#rqMemo,#rnp2Sync select{border:1px solid var(--border);border-radius:var(--r-s);padding:8px 10px;font:600 12px var(--font-ui);color:var(--ink);background:var(--bg)}
 </style>
 </head>
 <body>
@@ -1650,10 +1686,7 @@ function syncToolUI(){
   $('#textSize').value=Math.round(S.textSize*10); $('#textSizeOut').textContent=S.textSize.toFixed(1)+'%';
   $$('.swatches').forEach(markSwatch);
 }
-$('#btnTheme').addEventListener('click',()=>{
-  S.dark=!S.dark; document.body.classList.toggle('dark',S.dark);
-  try{ localStorage.setItem('rn:global',JSON.stringify({dark:S.dark})) }catch(e){}
-});
+$('#btnTheme').addEventListener('click',()=>{ try{ window.RNP2&&RNP2.themeMenu&&RNP2.themeMenu() }catch(e){ } }); try{ window.RNBridge={get S(){return S},renderPage:function(p){return renderPage(p)}} }catch(e){ }
 function loadGlobalPrefs(){
   let g={};
   try{ g=JSON.parse(localStorage.getItem('rn:global')||'{}'); S.dark=!!g.dark; if(g.tool) S.tool=g.tool }catch(e){}
@@ -2016,9 +2049,9 @@ function ensureUI(){
     ed.classList.add('hidden'); renderGrid(); toast('삭제했습니다'); });
 
   shareMenu=document.createElement('div'); shareMenu.id='shareMenu'; shareMenu.className='hidden';
-  shareMenu.innerHTML='<div class="sm-title">필기 포함 내보내기</div><button data-x="png">PNG로 저장</button><button data-x="pdf">PDF로 저장</button><button data-x="share">공유하기</button>';
+  shareMenu.innerHTML='<div class="sm-title">필기 포함 내보내기</div><button data-x="png">PNG로 저장</button><button data-x="pdf">PDF로 저장</button><button data-x="share">공유하기</button>'+'<div class="sm-title">RNP2 도구</div><button data-x="rnp2-quote">인용구 카드 만들기</button><button data-x="rnp2-annpdf">필기 합성 PDF 저장</button><button data-x="rnp2-sync">기기 간 동기화</button>';
   document.body.appendChild(shareMenu);
-  shareMenu.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return; shareMenu.classList.add('hidden'); doExport(b.dataset.x); });
+  shareMenu.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return; shareMenu.classList.add('hidden'); try{ if(window.RNP2&&RNP2.menuAction&&RNP2.menuAction(b.dataset.x)) return }catch(e){ } doExport(b.dataset.x); });
 }
 function segUI(){ const seg=document.getElementById('leSeg'); if(seg) seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===leStatus)); }
 function starsUI(){ const st=document.getElementById('leStars'); if(st) st.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.r<=leRating)); }
@@ -2272,6 +2305,378 @@ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostnam
 }
 
 window.RNP1={onOpened:onOpened, onProgress:onProgress, showStats:showStats};
+})();
+
+</script>
+<script>
+/* ==== RNP2: 테마(세피아/밝기)·WakeLock·독서목표·인용구카드·필기PDF·GitHub동기화 ==== */
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const LS=(k,d)=>{ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v) }catch(_){ return d } };
+const SV=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(_){} };
+function hashStr(str){ let h=5381; for(let i=0;i<str.length;i++){ h=(((h<<5)+h)+str.charCodeAt(i))|0 } return ''+h }
+function toast(msg){ try{ if(typeof window.toast==='function') window.toast(msg); else console.log('[RNP2]',msg) }catch(_){ } }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0') }
+function S(){ return (window.RNBridge&&window.RNBridge.S)||null }
+
+/* ---------- ③ 테마: 라이트/세피아/다크 + 밝기 + Wake Lock ---------- */
+const THEME='rn:theme';
+let wl=null, wantWake=false;
+function applyTheme(){
+  const t=LS(THEME,{mode:'light',bright:1});
+  const mode=['light','sepia','dark'].indexOf(t.mode)>=0?t.mode:'light';
+  const b=Math.min(1.3,Math.max(0.6,+t.bright||1));
+  document.body.classList.toggle('dark',mode==='dark');
+  document.body.classList.toggle('sepia',mode==='sepia');
+  try{ const g=Object.assign({},LS('rn:global',{})); g.dark=(mode==='dark'); SV('rn:global',g); if(window.RNBridge&&window.RNBridge.S){ window.RNBridge.S.dark=(mode==='dark') } }catch(_){}
+  const f=mode==='sepia'?('sepia(.32) saturate(.94) brightness('+b+')'):(b!==1?('brightness('+b+')'):'');
+  $$('.papercell').forEach(el=>{ el.style.filter=f });
+  const bt=$('#btnTheme'); if(bt) bt.title='화면 모드: '+(mode==='dark'?'다크':mode==='sepia'?'세피아':'라이트')+' (눌러서 변경)';
+}
+function themeMenu(){
+  let pop=$('#rnp2ThemePop');
+  if(pop){ pop.remove(); return }
+  const t=LS(THEME,{mode:'light',bright:1});
+  pop=document.createElement('div'); pop.id='rnp2ThemePop';
+  const m=t.mode||'light', b=Math.round((+t.bright||1)*100);
+  pop.innerHTML='<div class="rp-title">화면 모드</div>'
+   +'<button data-m="light" class="'+(m==='light'?'on':'')+'">라이트</button>'
+   +'<button data-m="sepia" class="'+(m==='sepia'?'on':'')+'">세피아</button>'
+   +'<button data-m="dark" class="'+(m==='dark'?'on':'')+'">다크</button>'
+   +'<div class="rp-bright"><span>밝기</span><input id="rpBright" type="range" min="70" max="130" step="5" value="'+b+'"><b id="rpBrightOut">'+b+'%</b></div>';
+  document.body.appendChild(pop);
+  const r=$('#btnTheme').getBoundingClientRect();
+  pop.style.top=Math.min(window.innerHeight-220,r.bottom+10)+'px';
+  pop.style.left=Math.max(10,Math.min(window.innerWidth-230,r.left-190))+'px';
+  pop.addEventListener('click',e=>{
+    const btn=e.target.closest('button[data-m]'); if(!btn) return;
+    const cur=LS(THEME,{mode:'light',bright:1}); cur.mode=btn.dataset.m; SV(THEME,cur);
+    applyTheme(); themeMenu(); themeMenu();
+  });
+  $('#rpBright').addEventListener('input',e=>{
+    const v=+e.target.value; $('#rpBrightOut').textContent=v+'%';
+    const cur=LS(THEME,{mode:'light',bright:1}); cur.bright=v/100; SV(THEME,cur); applyTheme();
+  });
+  setTimeout(()=>{ document.addEventListener('pointerdown',outside) },0);
+  function outside(e){ if(pop&&!pop.contains(e.target)&&e.target.id!=='btnTheme'){ pop.remove(); document.removeEventListener('pointerdown',outside) } }
+}
+async function reqWake(){
+  try{ if('wakeLock' in navigator&&!wl){ wl=await navigator.wakeLock.request('screen'); wl.addEventListener('release',()=>{ wl=null }) } }catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&wantWake) reqWake() });
+(function wrapHooks(){
+  const R=window.RNP1; if(!R) return;
+  const op=R.onProgress, oo=R.onOpened;
+  R.onProgress=function(){ wantWake=true; reqWake(); try{ op&&op.apply(this,arguments) }catch(_){} };
+  R.onOpened=function(){ wantWake=true; reqWake(); try{ oo&&oo.apply(this,arguments) }catch(_){} };
+})();
+
+/* ---------- ② 독서 목표 ---------- */
+function getGoal(){ return LS('rn:goal',{books:0,dailyMin:0}) }
+function goalDone(){
+  const reg=LS('rn:lib',[]); let done=0;
+  try{ done=reg.filter(e=>e&&e.status==='done').length }catch(_){}
+  const st=LS('rn:stats',{days:{}}); const dm=Math.round((st.days&&st.days[today()]||0)/60);
+  return {done,dm};
+}
+function goalSection(){
+  const g=getGoal(), d=goalDone();
+  if(!g.books&&!g.dailyMin) return '';
+  let a='',b='';
+  if(g.books){ const p=Math.min(100,Math.round(d.done/g.books*100)); a='<div class="rg-item"><span>올해 완독 <b>'+d.done+'</b>/'+g.books+'권</span><div class="rg-bar"><i style="width:'+p+'%"></i></div></div>' }
+  if(g.dailyMin){ const p2=Math.min(100,Math.round(d.dm/g.dailyMin*100)); b='<div class="rg-item"><span>오늘 <b>'+d.dm+'</b>/'+g.dailyMin+'분</span><div class="rg-bar"><i style="width:'+p2+'%"></i></div></div>' }
+  return '<div class="rnp2-goal"><div class="rg-head"><b>독서 목표</b><button type="button" class="rg-edit">수정</button></div>'+a+b+'</div>';
+}
+function refreshGoal(){
+  try{
+    const sheet=document.querySelector('#statOverlay .stat-sheet'); if(!sheet) return;
+    const old=sheet.querySelector('.rnp2-goal'); if(old) old.remove();
+    const row=sheet.querySelector('.stat-row2'); if(!row) return;
+    const html=goalSection(); if(!html) return;
+    row.insertAdjacentHTML('afterend',html);
+    const ed=sheet.querySelector('.rg-edit');
+    if(ed) ed.addEventListener('click',()=>{
+      const g=getGoal();
+      const b=+prompt('연간 완독 목표 (권, 0=끄기)',g.books||0); if(isNaN(b)) return;
+      const d=+prompt('하루 독서 목표 (분, 0=끄기)',g.dailyMin||0); if(isNaN(d)) return;
+      SV('rn:goal',{books:Math.max(0,b),dailyMin:Math.max(0,d)}); refreshGoal(); toast('목표를 저장했습니다');
+    });
+  }catch(_){}
+}
+new MutationObserver(()=>{ 
+  const o=document.getElementById('statOverlay');
+  if(o&&!o.classList.contains('hidden')) refreshGoal();
+}).observe(document.body,{attributes:true,childList:true,subtree:true});
+
+/* ---------- ④ 인용구 카드 ---------- */
+const PALETTES={
+  cream:{bg:'#FAF6EE',ink:'#242A31',sub:'#8A8F98',accent:'#F5D93F'},
+  dark:{bg:'#15191E',ink:'#F2EFE8',sub:'#9AA0A6',accent:'#F5D93F'},
+  green:{bg:'#EEF2EC',ink:'#232A24',sub:'#7C847C',accent:'#3E7C4F'}
+};
+function wrapText(ctx,text,maxW){
+  const lines=[]; let line='';
+  for(const ch of String(text).replace(/\r/g,'')){
+    if(ch==='\n'){ lines.push(line); line=''; continue }
+    const t=line+ch;
+    if(ctx.measureText(t).width>maxW&&line){ lines.push(line); line=ch } else line=t;
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+async function drawCard(opt){
+  const c=document.createElement('canvas'); c.width=1080; c.height=1350;
+  const x=c.getContext('2d'), P=PALETTES[opt.pal]||PALETTES.cream;
+  try{ await Promise.all([document.fonts.load('700 100px "Noto Serif KR"'),document.fonts.load('800 40px Pretendard'),document.fonts.load('600 34px Pretendard')]) }catch(_){}
+  x.fillStyle=P.bg; x.fillRect(0,0,1080,1350);
+  x.fillStyle=P.accent; x.fillRect(0,0,1080,18);
+  x.globalAlpha=.9; x.fillStyle=P.accent; x.font='700 190px "Noto Serif KR", serif'; x.fillText('\u201C',72,300); x.globalAlpha=1;
+  let fs=46; let lines=[];
+  const quote=(opt.text||'').trim()||'여기에 인용구를 입력하세요';
+  for(;;){
+    x.font='500 '+fs+'px "Noto Serif KR", serif';
+    lines=wrapText(x,quote,880);
+    if(lines.length<=13||fs<=28) break; fs-=3;
+  }
+  const lh=fs*1.72, ty=380+Math.max(0,(760-lines.length*lh)/2);
+  x.fillStyle=P.ink;
+  lines.forEach((L,i)=>x.fillText(L,92,ty+i*lh));
+  const fy=1280;
+  x.fillStyle=P.accent; x.fillRect(92,fy-64,64,10);
+  x.fillStyle=P.ink; x.font='800 38px Pretendard, sans-serif';
+  x.fillText((opt.book||'').slice(0,28)||'제목 없음',92,fy);
+  x.fillStyle=P.sub; x.font='600 27px Pretendard, sans-serif';
+  const meta=[]; if(opt.author) meta.push(opt.author.slice(0,20)); if(opt.page) meta.push('p.'+opt.page);
+  meta.push('독서노트');
+  x.fillText(meta.join(' · '),92,fy+44);
+  return c;
+}
+function quoteDialog(pre){
+  let ov=document.getElementById('rnp2Quote'); if(ov) ov.remove();
+  const Sx=S();
+  const notes=(Sx&&Sx.textNotes||[]).map(e=>{ const t=(typeof e==='string')?e:(e&&(e.text||e.str||e.txt||'')); return t&&t.length>3?t:'' }).filter(Boolean).slice(-30);
+  ov=document.createElement('div'); ov.id='rnp2Quote';
+  ov.innerHTML='<div class="rp-sheet">'
+   +'<div class="rp-head"><b>인용구 카드</b><button type="button" class="rp-x">✕</button></div>'
+   +(notes.length?'<select id="rqMemo"><option value="">메모장 텍스트 불러오기…</option>'+notes.map((t,i)=>'<option value="'+i+'">'+esc(t.slice(0,42))+'</option>').join('')+'</select>':'')
+   +'<textarea id="rqText" rows="5" placeholder="인용구를 입력하거나 붙여넣으세요">'+esc(pre||'')+'</textarea>'
+   +'<div class="rp-row"><input id="rqBook" placeholder="책 제목" value="'+esc((Sx&&Sx.fileName)||'').replace(/\.pdf$/i,'')+'"><input id="rqAuthor" placeholder="저자" style="max-width:120px"></div>'
+   +'<div class="rp-row"><span class="rp-lab">페이지</span><input id="rqPage" type="number" style="max-width:80px" value="'+((Sx&&Sx.current)||'')+'">'
+   +'<span class="rp-lab">색</span><button type="button" class="rp-pal on" data-p="cream"></button><button type="button" class="rp-pal" data-p="dark"></button><button type="button" class="rp-pal" data-p="green"></button></div>'
+   +'<div class="rp-btns"><button type="button" id="rqSave" class="rp-pri">이미지 저장</button><button type="button" id="rqShare">공유</button></div>'
+   +'<div class="rp-note">1080×1350 PNG · 팔레트를 바꿔 미리볼 수 있어요</div></div>';
+  document.body.appendChild(ov);
+  let pal='cream';
+  ov.querySelectorAll('.rp-pal').forEach(b=>b.addEventListener('click',()=>{ ov.querySelectorAll('.rp-pal').forEach(z=>z.classList.remove('on')); b.classList.add('on'); pal=b.dataset.p; prev() }));
+  async function prev(){ /* 미리보기는 저장/공유 시 생성 (가벼운 유지) */ }
+  const memo=ov.querySelector('#rqMemo');
+  if(memo) memo.addEventListener('change',()=>{ if(memo.value!==''){ $('#rqText').value=notes[+memo.value]||'' } });
+  ov.querySelector('.rp-x').addEventListener('click',()=>ov.remove());
+  ov.addEventListener('pointerdown',e=>{ if(e.target===ov) ov.remove() });
+  async function make(){ return await drawCard({text:$('#rqText').value,book:$('#rqBook').value,author:$('#rqAuthor').value,page:$('#rqPage').value,pal}) }
+  $('#rqSave').addEventListener('click',async()=>{
+    try{ const c=await make(); const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='인용구_'+Date.now()+'.png'; a.click(); ov.remove(); toast('이미지를 저장했습니다') }
+    catch(e){ toast('카드 생성 실패: '+e.message) }
+  });
+  $('#rqShare').addEventListener('click',async()=>{
+    try{
+      const c=await make(); const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+      const file=new File([blob],'quote.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'인용구'}) ; ov.remove() }
+      else{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='인용구_'+Date.now()+'.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('이 브라우저는 공유 대신 저장으로 동작합니다') }
+    }catch(e){ if(e&&e.name!=='AbortError') toast('공유 실패: '+e.message) }
+  });
+}
+
+/* ---------- ⑤ 필기 합성 PDF 내보내기 ---------- */
+let pdfLibLoading=null;
+function loadPdfLib(){
+  if(window.PDFLib&&window.PDFLib.PDFDocument) return Promise.resolve();
+  if(pdfLibLoading) return pdfLibLoading;
+  pdfLibLoading=new Promise((res,rej)=>{
+    const sc=document.createElement('script');
+    sc.src='./pdf-lib.min.js'; sc.onload=()=>{ if(window.PDFLib) res(); else rej(new Error('pdf-lib 로드 실패')) };
+    sc.onerror=()=>rej(new Error('pdf-lib 로드 실패 (오프라인이면 한 번 온라인에서 열어주세요)'));
+    document.head.appendChild(sc);
+  });
+  return pdfLibLoading;
+}
+async function exportAnnPdf(){
+  const Sx=S(); if(!Sx||!Sx.pdf){ toast('먼저 책을 열어주세요'); return }
+  const N=Sx.numPages||0; if(!N) return;
+  if(!confirm('전체 '+N+'쪽을 필기와 함께 PDF로 저장합니다.\n분량에 따라 다소 걸릴 수 있어요. 계속할까요?')) return;
+  toast('내보내기 준비 중…');
+  await loadPdfLib();
+  const PDFDocument=window.PDFLib.PDFDocument;
+  const bytes=await Sx.pdf.getData();
+  const orig=await PDFDocument.load(bytes);
+  const out=await PDFDocument.create();
+  (await out.copyPages(orig,orig.getPageIndices())).forEach(p=>out.addPage(p));
+  for(let n=1;n<=N;n++){
+    try{
+      const pv=Sx.pageViews&&Sx.pageViews.get&&Sx.pageViews.get(n);
+      if(pv&&!pv.rendered){ try{ window.RNBridge.renderPage(pv) }catch(_){} let w=0; while(pv&&!pv.rendered&&w<120){ await sleep(50); w++ } }
+      if(pv&&pv.rendered&&pv.pdfCanvas&&pv.annCanvas){
+        const c=document.createElement('canvas'); c.width=pv.pdfCanvas.width; c.height=pv.pdfCanvas.height;
+        const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
+        cx.drawImage(pv.pdfCanvas,0,0); cx.drawImage(pv.annCanvas,0,0);
+        const b64=c.toDataURL('image/jpeg',0.85);
+        const img=await out.embedJpg(b64);
+        const pg=out.getPage(n-1), sz=pg.getSize();
+        pg.drawImage(img,{x:0,y:0,width:sz.width,height:sz.height});
+      }
+    }catch(e){ /* 페이지 단위 실패는 건너뛰고 계속 */ }
+    if(n%5===0) toast('필기 합성 중… '+n+'/'+N+'쪽');
+    await sleep(0);
+  }
+  toast('PDF 조립 중…');
+  const data=await out.save();
+  const blob=new Blob([data],{type:'application/pdf'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=((Sx.fileName||'document').replace(/\.pdf$/i,''))+'_필기포함.pdf'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+  toast('저장 완료 ('+N+'쪽)');
+}
+
+/* ---------- ① GitHub 기기 간 동기화 ---------- */
+const SYNC='rn:sync', BHASH='rn:bhash';
+function cfgSync(){ return LS(SYNC,{token:'',repo:'',branch:'main',path:'readingnote/sync.json',auto:false}) }
+function bts(k){
+  const v=localStorage.getItem(k)||''; const h=hashStr(v);
+  const BH=LS(BHASH,{}); const rec=BH[k];
+  if(!rec||rec.h!==h){ BH[k]={h:h,ts:Date.now()}; SV(BHASH,BH); return BH[k].ts }
+  return rec.ts;
+}
+function devName(){
+  try{ const u=navigator.userAgent; return /iPad|iPhone/.test(u)?'iOS':/Android/.test(u)?'Android':/Mac/.test(u)?'Mac':/Windows/.test(u)?'Windows':'기기' }catch(_){ return '기기' }
+}
+function collect(){
+  const books={};
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i);
+    if(/^rn:.+:\d+$/.test(k)) books[k]={json:localStorage.getItem(k),ts:bts(k)};
+  }
+  return JSON.stringify({v:1,ts:Date.now(),dev:devName(),
+    lib:localStorage.getItem('rn:lib')||'[]', libTs:LS('rn:lib:ts',0),
+    stats:localStorage.getItem('rn:stats')||'{}',
+    goal:localStorage.getItem('rn:goal')||'{}',
+    books:books});
+}
+function b64enc(str){
+  const bytes=new TextEncoder().encode(str); let bin='';
+  for(let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));
+  return btoa(bin);
+}
+function b64dec(b64){
+  const bin=atob(String(b64).replace(/\s/g,''));
+  return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)));
+}
+function ghUrl(cfg){ return 'https://api.github.com/repos/'+cfg.repo+'/contents/'+cfg.path.split('/').map(encodeURIComponent).join('/') }
+async function ghGet(cfg){
+  const r=await fetch(ghUrl(cfg)+'?ref='+encodeURIComponent(cfg.branch||'main'),{headers:{Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'}});
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error('GitHub HTTP '+r.status+(r.status===401?' — 토큰을 확인하세요':''));
+  const j=await r.json();
+  let p=null; try{ p=JSON.parse(b64dec(j.content)) }catch(_){ throw new Error('동기화 파일 파싱 실패') }
+  return {sha:j.sha,p:p};
+}
+async function ghPut(cfg,json,sha){
+  const r=await fetch(ghUrl(cfg),{method:'PUT',headers:{Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+    body:JSON.stringify({message:'독서노트 동기화 '+new Date().toLocaleString('ko-KR'),content:b64enc(json),sha:sha||undefined,branch:cfg.branch||'main'})});
+  if(!r.ok) throw new Error('업로드 실패 HTTP '+r.status+(r.status===401?' — 토큰 권한을 확인하세요':''));
+}
+let lastPush='';
+async function pushSync(silent){
+  const cfg=cfgSync();
+  if(!cfg.token||!cfg.repo){ if(!silent) toast('동기화 설정을 먼저 저장해주세요'); return false }
+  const json=collect();
+  if(silent&&json===lastPush) return false;
+  const cur=await ghGet(cfg);
+  await ghPut(cfg,json,cur&&cur.sha);
+  lastPush=json; if(!silent) toast('업로드 완료 — '+(cur?'갱신':'신규 생성'));
+  return true;
+}
+async function pullSync(){
+  const cfg=cfgSync();
+  if(!cfg.token||!cfg.repo){ toast('동기화 설정을 먼저 저장해주세요'); return }
+  const cur=await ghGet(cfg);
+  if(!cur||!cur.p){ toast('클라우드에 백업이 없습니다 — 먼저 업로드해주세요'); return }
+  const p=cur.p, changed=[];
+  /* 책 데이터: 기기별 최신 승리 */
+  const books=p.books||{};
+  for(const k in books){
+    if(!/^rn:.+:\d+$/.test(k)) continue;
+    const localTs=bts(k);
+    if((books[k].ts||0)>localTs&&books[k].json){ localStorage.setItem(k,books[k].json); changed.push(k) }
+  }
+  /* 책장: 더 최신 승리 */
+  if(p.lib&&((p.libTs||0)>=(LS('rn:lib:ts',0)||0))){ const cur2=localStorage.getItem('rn:lib'); if(p.lib!==cur2){ localStorage.setItem('rn:lib',p.lib); SV('rn:lib:ts',(p.libTs||Date.now())); changed.push('rn:lib') } }
+  /* 통계: 일별 최댓값 병합 */
+  try{
+    const rs=LS('rn:stats',{days:{},books:{}}); const ps=(typeof p.stats==='string')?JSON.parse(p.stats||'{}'):(p.stats||{});
+    if(ps.days){ let d=false; for(const k in ps.days){ const v=+ps.days[k]||0; if(v>((rs.days&&rs.days[k])||0)){ rs.days=rs.days||{}; rs.days[k]=v; d=true } }
+      if(ps.books){ for(const k in ps.books){ const r2=rs.books&&rs.books[k], q=ps.books[k]; if(!r2||(+q.last||0)>(+r2.last||0)){ rs.books=rs.books||{}; rs.books[k]=q; d=true } } }
+      if(d){ SV('rn:stats',rs); changed.push('rn:stats') } }
+  }catch(_){}
+  /* 목표: 클라우드 우선 */
+  try{ const pg=(typeof p.goal==='string')?JSON.parse(p.goal||'{}'):(p.goal||{}); if(pg.books||pg.dailyMin){ SV('rn:goal',pg) } }catch(_){}
+  if(changed.length){
+    if(confirm('복원 완료 ('+changed.length+'개 항목).\n새로고침하면 적용됩니다. 지금 새로고침할까요?')) location.reload();
+    else toast('복원 완료 — 새로고침 시 적용됩니다');
+  } else toast('이미 최신 상태입니다');
+}
+function syncDialog(){
+  let ov=document.getElementById('rnp2Sync'); if(ov) ov.remove();
+  const c=cfgSync();
+  ov=document.createElement('div'); ov.id='rnp2Sync';
+  ov.innerHTML='<div class="rp-sheet">'
+   +'<div class="rp-head"><b>기기 간 동기화 (GitHub)</b><button type="button" class="rp-x">✕</button></div>'
+   +'<div class="rp-note">GitHub 개인용 토큰(fine-grained, 책 저장소 1개에 Contents 쓰기 권한)을 사용해 백업 JSON을 저장소에 올립니다. 토큰은 이 기기에만 저장됩니다.</div>'
+   +'<label class="rp-f"><span>저장소 (owner/repo)</span><input id="rsRepo" placeholder="예: my-id/reading-sync" value="'+esc(c.repo)+'"></label>'
+   +'<div class="rp-row"><label class="rp-f" style="flex:1"><span>브랜치</span><input id="rsBranch" value="'+esc(c.branch||'main')+'"></label>'
+   +'<label class="rp-f" style="flex:2"><span>파일 경로</span><input id="rsPath" value="'+esc(c.path)+'"></label></div>'
+   +'<label class="rp-f"><span>토큰</span><input id="rsToken" type="password" placeholder="github_pat_…" value="'+esc(c.token)+'"></label>'
+   +'<label class="rp-check"><input id="rsAuto" type="checkbox" '+(c.auto?'checked':'')+'> 15분마다 자동 업로드</label>'
+   +'<div class="rp-btns"><button type="button" id="rsSave" class="rp-pri">설정 저장</button><button type="button" id="rsPush">지금 업로드</button><button type="button" id="rsPull">가져오기(복원)</button></div>'
+   +'<div class="rp-note" id="rsMsg"></div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('.rp-x').addEventListener('click',()=>ov.remove());
+  ov.addEventListener('pointerdown',e=>{ if(e.target===ov) ov.remove() });
+  $('#rsSave').addEventListener('click',()=>{
+    const n={token:$('#rsToken').value.trim(),repo:$('#rsRepo').value.trim(),branch:$('#rsBranch').value.trim()||'main',path:$('#rsPath').value.trim()||'readingnote/sync.json',auto:$('#rsAuto').checked};
+    if(n.repo&&!/^[^\/]+\/[^\/]+$/.test(n.repo)){ $('#rsMsg').textContent='저장소는 owner/repo 형식이어야 합니다'; return }
+    SV(SYNC,n); toast('동기화 설정을 저장했습니다'); autoTimer();
+  });
+  $('#rsPush').addEventListener('click',async()=>{
+    $('#rsMsg').textContent='업로드 중…';
+    try{ await pushSync(false); $('#rsMsg').textContent='클라우드에 업로드했습니다' }
+    catch(e){ $('#rsMsg').textContent=e.message }
+  });
+  $('#rsPull').addEventListener('click',async()=>{
+    $('#rsMsg').textContent='가져오는 중…';
+    try{ await pullSync(); $('#rsMsg').textContent='' }
+    catch(e){ $('#rsMsg').textContent=e.message }
+  });
+}
+let autoT=null;
+function autoTimer(){
+  const c=cfgSync();
+  if(autoT){ clearInterval(autoT); autoT=null }
+  if(c.auto&&c.token&&c.repo) autoT=setInterval(()=>{ if(!document.hidden) pushSync(true).catch(()=>{}) },15*60*1000);
+}
+
+/* ---------- 메뉴 라우팅 ---------- */
+function menuAction(x){
+  if(x==='rnp2-quote'){ quoteDialog(''); return true }
+  if(x==='rnp2-annpdf'){ exportAnnPdf(); return true }
+  if(x==='rnp2-sync'){ syncDialog(); return true }
+  return false;
+}
+/* 통계 패널이 열릴 때 목표 섹션 갱신 + 패널 외부 영역 옵저버 시작 */
+window.RNP2={themeMenu:themeMenu,menuAction:menuAction,quoteDialog:quoteDialog,refreshGoal:refreshGoal};
+applyTheme(); autoTimer();
 })();
 
 </script>
