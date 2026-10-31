@@ -158,7 +158,7 @@ svg{display:block}
   radial-gradient(1200px 500px at 70% -10%, rgba(245,217,63,.07), transparent 60%), var(--bg)}
 #viewer{position:absolute; inset:0; overflow:auto; padding:8px 12px 10px}
 #pagesFlow{display:flex; flex-direction:column; gap:20px; min-height:100%}
-#pagesFlow .row{display:flex; gap:24px; align-items:flex-start; margin:auto}
+#pagesFlow .row{display:flex; gap:0; align-items:flex-start; margin:auto}
 #pagesFlow .row.turn-hidden{display:none}
 @keyframes turnR{from{transform:translateX(42px); opacity:.35}to{transform:none; opacity:1}}
 @keyframes turnL{from{transform:translateX(-42px); opacity:.35}to{transform:none; opacity:1}}
@@ -811,7 +811,7 @@ function rebuildRows(){
 function layout(){
   if(!S.pdf) return;
   const vw=viewer.clientWidth-24, vh=viewer.clientHeight-18;
-  const per=S.viewMode==='double'?2:1, gutter=S.viewMode==='double'?24:0;
+  const per=S.viewMode==='double'?2:1, gutter=0;
   const fitW=(vw-gutter*(per-1))/S.w1;
   const base=S.fitMode==='fit-height'?vh/S.h1:(S.fitMode==='fit-page'?Math.min(fitW,vh/S.h1):fitW);
   const cw=S.w1*base*S.zoom, ch=S.h1*base*S.zoom;
