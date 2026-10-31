@@ -550,6 +550,11 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
 .rp-f input{border:1px solid var(--border);border-radius:var(--r-s);padding:8px 10px;font:600 13px var(--font-ui);color:var(--ink);background:var(--bg);box-sizing:border-box;width:100%}
 .rp-check{display:flex;align-items:center;gap:8px;font:600 12px var(--font-ui);color:var(--ink)}
 #rqMemo,#rnp2Sync select{border:1px solid var(--border);border-radius:var(--r-s);padding:8px 10px;font:600 12px var(--font-ui);color:var(--ink);background:var(--bg)}
+
+/* ==== P3: 필기도구 바 자유 배치 ==== */
+#rnp2Drag{flex:0 0 auto;width:28px;height:28px;border:1px solid var(--border);border-radius:var(--r-s);background:transparent;color:var(--muted);font:700 13px/1 var(--font-ui);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;padding:0;margin-right:2px}
+#rnp2Drag:active{cursor:grabbing}
+#toolwrap.rnp2-float{position:fixed!important;left:auto;top:auto;right:auto!important;bottom:auto!important;transform:none!important;margin:0!important;transition:none!important}
 </style>
 </head>
 <body>
@@ -2677,6 +2682,75 @@ function menuAction(x){
 /* 통계 패널이 열릴 때 목표 섹션 갱신 + 패널 외부 영역 옵저버 시작 */
 window.RNP2={themeMenu:themeMenu,menuAction:menuAction,quoteDialog:quoteDialog,refreshGoal:refreshGoal};
 applyTheme(); autoTimer();
+})();
+
+</script>
+<script>
+/* P3: 필기도구 바 자유 배치 — 드래그 이동 · 위치 기억 · 두 번 눌러 초기화 */
+(function(){
+'use strict';
+var KEY='rn:toolpos';
+var wrap=document.getElementById('toolwrap');
+if(!wrap||document.getElementById('rnp2Drag'))return;
+var h=document.createElement('button');
+h.id='rnp2Drag';h.type='button';h.setAttribute('aria-label','도구 바 이동');
+h.title='끌어서 이동 · 두 번 눌러 초기화';h.textContent='⠿';
+wrap.insertBefore(h,wrap.firstChild);
+function cl(x,y){
+  var r=wrap.getBoundingClientRect(),m=6,W=window.innerWidth,H=window.innerHeight;
+  return[Math.max(m,Math.min(x,Math.max(m,W-r.width-m))),Math.max(m,Math.min(y,Math.max(m,H-r.height-m)))];
+}
+function apply(x,y){wrap.classList.add('rnp2-float');wrap.style.left=x+'px';wrap.style.top=y+'px'}
+function save(x,y){try{localStorage.setItem(KEY,JSON.stringify({x:x,y:y}))}catch(e){}}
+function restore(){
+  var d;try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){d=null}
+  if(!d||!isFinite(d.x)||!isFinite(d.y))return;
+  apply(d.x,d.y);
+  requestAnimationFrame(function(){
+    var r=wrap.getBoundingClientRect();
+    if(!r.width&&!r.height)return;
+    var c=cl(d.x,d.y);
+    if(c[0]!==d.x||c[1]!==d.y){apply(c[0],c[1]);save(c[0],c[1])}
+  });
+}
+restore();
+var dragging=false,moved=false,sx=0,sy=0,ox=0,oy=0,lastTap=0,pid=null;
+h.addEventListener('pointerdown',function(e){
+  if(e.button)return;
+  e.preventDefault();pid=e.pointerId;
+  try{h.setPointerCapture(pid)}catch(err){}
+  var r=wrap.getBoundingClientRect();
+  if(!wrap.classList.contains('rnp2-float'))apply(r.left,r.top);
+  dragging=true;moved=false;sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;
+});
+h.addEventListener('pointermove',function(e){
+  if(!dragging||e.pointerId!==pid)return;
+  var dx=e.clientX-sx,dy=e.clientY-sy;
+  if(!moved&&Math.abs(dx)+Math.abs(dy)>5)moved=true;
+  if(!moved)return;
+  var c=cl(ox+dx,oy+dy);
+  wrap.style.left=c[0]+'px';wrap.style.top=c[1]+'px';
+});
+h.addEventListener('pointerup',function(e){
+  if(!dragging||e.pointerId!==pid)return;
+  dragging=false;pid=null;
+  if(moved){save(parseFloat(wrap.style.left),parseFloat(wrap.style.top));return}
+  var now=Date.now();
+  if(now-lastTap<350){
+    wrap.classList.remove('rnp2-float');wrap.style.left='';wrap.style.top='';
+    try{localStorage.removeItem(KEY)}catch(err){}
+    try{toast('도구 바 위치 초기화')}catch(err){}
+    lastTap=0;
+  }else lastTap=now;
+});
+h.addEventListener('pointercancel',function(){dragging=false;pid=null});
+window.addEventListener('resize',function(){
+  if(!wrap.classList.contains('rnp2-float'))return;
+  var r=wrap.getBoundingClientRect();
+  if(!r.width&&!r.height)return;
+  var c=cl(r.left,r.top);
+  if(c[0]!==r.left||c[1]!==r.top){wrap.style.left=c[0]+'px';wrap.style.top=c[1]+'px';save(c[0],c[1])}
+});
 })();
 
 </script>
