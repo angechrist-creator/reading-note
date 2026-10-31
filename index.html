@@ -512,6 +512,8 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
 .pane-empty{text-align:center; color:var(--muted); font-size:12px; padding:26px 10px; line-height:1.6}
 @media (max-width:520px){ .stat-grid{grid-template-columns:repeat(2,1fr)} .sb-title{max-width:170px} }
 
+#topbar .brand{display:flex;align-items:center;gap:8px}
+#topbar .brand .st-group{display:flex;align-items:center;gap:6px;margin:0}
 </style>
 </head>
 <body>
@@ -520,6 +522,7 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
   <div class="brand">
     <span class="word">독서노트</span>
   </div>
+  <div class="st-group">    <button id="btnLib" class="btn ghost" title="책장 (기기에 저장한 책 목록)" style="height:30px;padding:0 10px;font-size:12px">책장</button>    <button id="btnShare" class="iconbtn" title="공유/내보내기"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>  </div>
   <div id="toolwrap">
     <div id="toolrail">
       <button class="tool" id="tool-hand" data-tool="hand" title="이동 · 스크롤 (1)"><svg class="ic" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.7-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg></button>
@@ -660,7 +663,7 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
     <span class="chip" title="읽은 페이지 기준 독서 진도"><span class="dot"></span>진도 <b id="progPct">0%</b></span>
     <span class="chip" title="이번 세션 독서 시간"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b id="timeMin">0분</b></span>
   </div>
-  <div class="st-group">    <button id="btnFind" class="iconbtn" title="본문 검색"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>    <button id="btnStat" class="iconbtn" title="독서 통계"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h16M7 20v-6M12 20V8M17 20v-4"/></svg></button>  </div>  <div class="st-group">    <button id="btnLib" class="btn ghost" title="책장 (기기에 저장한 책 목록)" style="height:30px;padding:0 10px;font-size:12px">책장</button>    <button id="btnShare" class="iconbtn" title="공유/내보내기"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>  </div>  <button id="btnOpen" class="btn primary" title="PDF 파일 열기" style="height:30px;padding:0 10px;font-size:12px"><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.2 3.9A2 2 0 0 0 7.5 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span class="btn-label">파일 열기</span></button>
+  <div class="st-group">    <button id="btnFind" class="iconbtn" title="본문 검색"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>    <button id="btnStat" class="iconbtn" title="독서 통계"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h16M7 20v-6M12 20V8M17 20v-4"/></svg></button>  </div>    <button id="btnOpen" class="btn primary" title="PDF 파일 열기" style="height:30px;padding:0 10px;font-size:12px"><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.2 3.9A2 2 0 0 0 7.5 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span class="btn-label">파일 열기</span></button>
   <button id="starBtn" class="iconbtn" title="이 페이지 북마크"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.5l6.5-.9L12 2.7Z"/></svg></button>
   <div class="st-sep"></div>
   <div class="st-group">
