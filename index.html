@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>독서노트 — PDF 읽고 필기하기</title>
-<meta name="theme-color" content="#F5D93F">
+<meta name="theme-color" content="#F3EEE2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -729,6 +729,46 @@ body.dark .le-seg button.on{color:var(--bg)}
 #rnp4pill{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-2);border-radius:8px}
 .stat-sheet{border:1px solid var(--border)}
 .rp-sheet{border:1px solid var(--border)}
+
+</style>
+<style id="rnp6css">
+/* ================================================================
+   P6 · Warm Paper — 눈이 편한 웜톤 팔레트
+   P5 뒤에 로드되어 토큰을 따뜻한 종이 색조로 교체
+   ================================================================ */
+
+/* ---------- 1. 토큰: 종이 크림 + 브라스 액센트 ---------- */
+:root{
+  --bg:#F3EEE2; --surface:#FBF8F0; --surface-2:#F0EADC; --paper:#FDFBF4;
+  --border:#DCD2BE; --line:#E8E0CE;
+  --ink:#42392B; --ink-2:#5E5340; --muted:#8C8170;
+  --accent:#8A6730; --accent-hover:#7A5A28; --accent-ink:#6B4F22; --accent-soft:rgba(176,138,74,.16);
+  --accent-text:#8A6730;
+  --star:#CE8B2F; --danger:#C25B4E; --ok:#6E8F5E;
+  --shadow-1:0 1px 2px rgba(92,74,44,.08);
+  --shadow-2:0 4px 14px rgba(92,74,44,.10), 0 14px 34px rgba(92,74,44,.10);
+  --r-s:8px; --r-m:10px; --r-l:12px;
+}
+body.dark{
+  --bg:#201C15; --surface:#2A251C; --surface-2:#342D21; --border:#433A2A; --line:#37301F;
+  --ink:#E8E0CE; --ink-2:#D2C8B2; --muted:#A79B85; --note-line:#4A4130; --thumb-bg:#2E2820;
+  --accent:#C9A25E; --accent-hover:#D6B271; --accent-ink:#E3C98F; --accent-soft:rgba(201,162,94,.18);
+  --accent-text:#DDBC80;
+  --shadow-1:0 1px 2px rgba(0,0,0,.40);
+  --shadow-2:0 4px 14px rgba(0,0,0,.42), 0 14px 34px rgba(0,0,0,.40);
+}
+
+/* ---------- 2. 하드코딩된 콜아웃을 따뜻하게 재정의 ---------- */
+::selection{background:rgba(176,138,74,.30)}
+body.dark ::selection{background:rgba(201,162,94,.38)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(140,125,96,.32);border-radius:5px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(140,125,96,.52);background-clip:content-box;border:2px solid transparent}
+.btn.primary{box-shadow:0 1px 2px rgba(92,74,44,.22)}
+.btn.primary:hover{background:#5A4D33}
+body.dark .btn.primary:hover{background:#F4EDDC}
+.seg button.on{box-shadow:0 1px 2px rgba(92,74,44,.12)}
+#eraserCursor{background:rgba(140,125,96,.22);border:1.5px solid var(--ink)}
 
 </style>
 </head>
