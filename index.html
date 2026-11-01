@@ -3424,16 +3424,17 @@ function addMenuItems(){
   if(sm.querySelector('button[data-x="rnp4-edit"]')) { itemsAdded=true; return; }
   const html=document.createElement('div');
   html.innerHTML='<div class="sm-title">P4 도구</div>'+
-    '<button data-x="rnp4-edit">페이지 편집 (추출·삭제·회전)</button>'+
     '<button data-x="rnp7-crop">여백 자르기 (전체 페이지)</button>'+
     '<button data-x="rnp4-ocr">OCR 상태 / 다시 인식</button>'+
     '<button data-x="rnp4-copy">현재 페이지 텍스트 복사</button>'+
-    '<button data-x="rnp4-view">현재 페이지 텍스트 보기</button>';
+    '<button data-x="rnp4-view">현재 페이지 텍스트 보기</button>'+
+    '<button data-x="rnp4-edit">페이지 편집 (추출·삭제·회전)</button>';
   while(html.firstChild) sm.appendChild(html.firstChild);
   itemsAdded=true;
   sm.addEventListener('click',ev=>{
     const b=ev.target.closest('button'); if(!b) return;
     const x=b.dataset.x;
+    sm.classList.add('hidden');
     if(x==='rnp4-edit'){ window.RNP4edit.openEditor(); }
     else if(x==='rnp4-ocr'&&window.RNP4){ RNP4.ocrMenu(); }
     else if(x==='rnp4-copy'&&window.RNP4){ RNP4.copyCur(); }
