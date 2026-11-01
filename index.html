@@ -3424,7 +3424,8 @@ function addMenuItems(){
   if(sm.querySelector('button[data-x="rnp4-edit"]')) { itemsAdded=true; return; }
   const html=document.createElement('div');
   html.innerHTML='<div class="sm-title">P4 도구</div>'+
-    '<button data-x="rnp4-edit">페이지 편집 (자르기)</button>'+
+    '<button data-x="rnp4-edit">페이지 편집 (추출·삭제·회전)</button>'+
+    '<button data-x="rnp7-crop">여백 자르기 (전체 페이지)</button>'+
     '<button data-x="rnp4-ocr">OCR 상태 / 다시 인식</button>'+
     '<button data-x="rnp4-copy">현재 페이지 텍스트 복사</button>'+
     '<button data-x="rnp4-view">현재 페이지 텍스트 보기</button>';
@@ -3433,10 +3434,11 @@ function addMenuItems(){
   sm.addEventListener('click',ev=>{
     const b=ev.target.closest('button'); if(!b) return;
     const x=b.dataset.x;
-    if(x==='rnp4-edit'){ openEditor(); }
+    if(x==='rnp4-edit'){ window.RNP4edit.openEditor(); }
     else if(x==='rnp4-ocr'&&window.RNP4){ RNP4.ocrMenu(); }
     else if(x==='rnp4-copy'&&window.RNP4){ RNP4.copyCur(); }
     else if(x==='rnp4-view'&&window.RNP4){ RNP4.viewCur(); }
+    else if(x==='rnp7-crop'&&window.RNP4edit){ window.RNP4edit.openEditor(); setTimeout(function(){ try{ if(window.RNP7crop) window.RNP7crop.toggle(); }catch(_){ } },180); }
   });
 }
 document.addEventListener('click',e=>{
@@ -3546,7 +3548,7 @@ function injectCropUI(){
   var bar=panel.querySelector('.rnp4e-bar'); if(!bar) return;
   var btn=document.createElement('button'); btn.id='rnp7cropbtn'; btn.type='button'; btn.textContent='여백 자르기';
   btn.addEventListener('click',function(){ toggle(); });
-  bar.appendChild(btn);
+  bar.insertBefore(btn,bar.firstChild);
   var box=document.createElement('div'); box.id='rnp7crop'; box.style.display='none';
   box.innerHTML=
     '<div class="rnp7-head"><b>여백 잘라내기</b><span>미리보기에서 여백을 조정하면 전체 페이지에 똑같이 적용됩니다</span></div>'+
