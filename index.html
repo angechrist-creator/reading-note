@@ -2309,7 +2309,7 @@ function ensureUI(){
   shareMenu=document.createElement('div'); shareMenu.id='shareMenu'; shareMenu.className='hidden';
   shareMenu.innerHTML='<div class="sm-title">필기 포함 내보내기</div><button data-x="png">PNG로 저장</button><button data-x="pdf">PDF로 저장</button><button data-x="share">공유하기</button>'+'<div class="sm-title">RNP2 도구</div><button data-x="rnp2-quote">인용구 카드 만들기</button><button data-x="rnp2-annpdf">필기 합성 PDF 저장</button><button data-x="rnp2-sync">기기 간 동기화</button>';
   document.body.appendChild(shareMenu);
-  shareMenu.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return; shareMenu.classList.add('hidden'); try{ if(window.RNP2&&RNP2.menuAction&&RNP2.menuAction(b.dataset.x)) return }catch(e){ } doExport(b.dataset.x); });
+  shareMenu.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return; shareMenu.classList.add('hidden'); try{ if(window.RNP2&&RNP2.menuAction&&RNP2.menuAction(b.dataset.x)) return }catch(e){ } /*P12a*/ if(b.dataset.x==='png'||b.dataset.x==='pdf'||b.dataset.x==='share') doExport(b.dataset.x); });
 }
 function segUI(){ const seg=document.getElementById('leSeg'); if(seg) seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===leStatus)); }
 function starsUI(){ const st=document.getElementById('leStars'); if(st) st.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.r<=leRating)); }
@@ -2612,7 +2612,7 @@ function themeMenu(){
   pop.addEventListener('click',e=>{
     const btn=e.target.closest('button[data-m]'); if(!btn) return;
     const cur=LS(THEME,{mode:'light',bright:1}); cur.mode=btn.dataset.m; SV(THEME,cur);
-    applyTheme(); themeMenu(); themeMenu();
+    applyTheme(); pop.remove(); document.removeEventListener('pointerdown',outside); themeMenu(); /*P12b*/
   });
   $('#rpBright').addEventListener('input',e=>{
     const v=+e.target.value; $('#rpBrightOut').textContent=v+'%';
