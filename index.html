@@ -556,6 +556,40 @@ button,.switch,input,select,textarea,label,a,[role="button"]{touch-action:manipu
 #rnp2Drag:active{cursor:grabbing}
 #toolwrap.rnp2-float{position:fixed!important;left:auto;top:auto;right:auto!important;bottom:auto!important;transform:none!important;margin:0!important;transition:none!important}
 </style>
+<style id="rnp4css">
+/* ===== P4: OCR 진행 pill · 텍스트 보기 · 페이지 편집 모달 ===== */
+#rnp4pill{position:fixed;left:14px;bottom:14px;z-index:150;display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:var(--shadow-2);padding:8px 14px;font:600 12px var(--font-ui);color:var(--ink)}
+#rnp4pill.on{display:flex}
+#rnp4pill .rnp4-bar{width:110px;height:6px;border-radius:99px;background:var(--border);overflow:hidden}
+#rnp4pill .rnp4-bar i{display:block;height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width .3s}
+#rnp4pill button{border:0;background:transparent;color:var(--muted);font:700 12px var(--font-ui);cursor:pointer;padding:2px 4px}
+#rnp4tv{position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px}
+#rnp4tv.on{display:flex}
+#rnp4tv .rnp4tv-p{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);box-shadow:var(--shadow-2);width:min(680px,94vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+#rnp4tv .rnp4tv-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font:700 14px var(--font-ui);color:var(--ink)}
+#rnp4tv .rnp4tv-h button{border:0;background:transparent;color:var(--muted);font-size:16px;cursor:pointer}
+#rnp4tv textarea{flex:1;margin:10px 14px;border:1px solid var(--border);border-radius:var(--r-s);padding:10px;font:13px/1.7 var(--font-ui);color:var(--ink);background:var(--paper);resize:none;min-height:220px}
+#rnp4tv .rnp4tv-f{display:flex;gap:8px;justify-content:flex-end;padding:0 14px 12px}
+#rnp4tv .rnp4tv-f button{border:1px solid var(--border);background:var(--surface);color:var(--ink);font:600 12px var(--font-ui);padding:7px 14px;border-radius:var(--r-s);cursor:pointer}
+#rnp4e{position:fixed;inset:0;z-index:155;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:14px}
+#rnp4e .rnp4e-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);box-shadow:var(--shadow-2);width:min(960px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+#rnp4e .rnp4e-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);font:700 15px var(--font-ui);color:var(--ink)}
+#rnp4e .rnp4e-head span{font:600 12px var(--font-ui);color:var(--muted)}
+#rnp4e .rnp4e-x{margin-left:auto;border:0;background:transparent;color:var(--muted);font-size:16px;cursor:pointer}
+#rnp4e .rnp4e-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border)}
+#rnp4e .rnp4e-bar button{border:1px solid var(--border);background:var(--surface);color:var(--ink);font:600 12px var(--font-ui);padding:7px 12px;border-radius:var(--r-s);cursor:pointer}
+#rnp4e .rnp4e-bar button.rnp4e-pri{background:var(--accent);border-color:var(--accent);color:#fff}
+#rnp4e .rnp4e-bar button.rnp4e-warn{color:var(--danger,#c0392b);border-color:var(--danger,#c0392b)}
+#rnp4e .rnp4e-bar input{width:64px;height:30px;border:1px solid var(--border);border-radius:var(--r-s);background:var(--paper);color:var(--ink);font:600 12px var(--font-ui);text-align:center}
+#rnp4e .rnp4e-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+#rnp4e .rnp4e-hint{padding:8px 16px 0;font:500 11px var(--font-ui);color:var(--muted)}
+#rnp4e .rnp4e-grid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:12px 16px 16px}
+#rnp4e .rnp4e-cell{position:relative;aspect-ratio:3/4.2;border:1px solid var(--border);border-radius:var(--r-s);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+#rnp4e .rnp4e-cell canvas{max-width:100%;max-height:100%;display:block}
+#rnp4e .rnp4e-cell.on{outline:2px solid var(--accent);outline-offset:-2px}
+#rnp4e .rnp4e-badge{position:absolute;top:4px;left:4px;min-width:18px;height:18px;border-radius:99px;background:var(--accent);color:#fff;font:700 11px var(--font-ui);display:none;align-items:center;justify-content:center;padding:0 5px}
+#rnp4e .rnp4e-lb{position:absolute;bottom:0;left:0;right:0;text-align:center;font:600 10px var(--font-ui);color:var(--muted);background:var(--surface);padding:2px 0;opacity:.9}
+</style>
 </head>
 <body>
 <header id="topbar">
@@ -2753,6 +2787,446 @@ window.addEventListener('resize',function(){
 });
 })();
 
+</script>
+<script>
+/* P4 OCR: 스캔 PDF 자동 인식 → 기존 검색/복사가 동작하도록 텍스트 소스 제공 */
+(function(){
+'use strict';
+if(window.RNP4) return;
+const S=()=> (window.RNBridge&&window.RNBridge.S)||null;
+function T(m){ try{ if(typeof window.toast==='function') window.toast(m); else console.log('[RNP4]',m); }catch(_){ } }
+/* ---- IndexedDB (앱 동일 DB/kv) ---- */
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('readingnote-db',1); r.onupgradeneeded=()=>{ try{r.result.createObjectStore('kv')}catch(_){} }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function idbGet(k){ try{ const d=await idb(); return await new Promise((res,rej)=>{ const t=d.transaction('kv','readonly').objectStore('kv').get(k); t.onsuccess=()=>res(t.result||null); t.onerror=()=>rej(t.error); }); }catch(_){ return null; } }
+async function idbPut(k,v){ try{ const d=await idb(); return await new Promise((res,rej)=>{ const t=d.transaction('kv','readwrite').objectStore('kv').put(v,k); t.onsuccess=()=>res(); t.onerror=()=>rej(t.error); }); }catch(_){ } }
+async function idbDel(k){ try{ const d=await idb(); return await new Promise((res)=>{ const t=d.transaction('kv','readwrite').objectStore('kv').delete(k); t.onsuccess=()=>res(); t.onerror=()=>res(); }); }catch(_){ } }
+/* ---- 상태 ---- */
+let curKey=null, curN=0, pages=null, ocrDone=0, running=false, cancelFlag=false, worker=null, patchedDoc=null, scanned=false;
+function ocrKey(){ return 'rn4ocr:'+curKey; }
+/* ---- tesseract.js (CDN, 필요 시 로드) ---- */
+let tessLoading=null;
+function loadTess(){
+  if(window.Tesseract&&window.Tesseract.createWorker) return Promise.resolve();
+  if(tessLoading) return tessLoading;
+  tessLoading=new Promise((res,rej)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    sc.onload=()=>{ (window.Tesseract&&window.Tesseract.createWorker)?res():rej(new Error('OCR 엔진 로드 실패')); };
+    sc.onerror=()=>rej(new Error('OCR 엔진을 가져올 수 없습니다 (네트워크 필요)'));
+    document.head.appendChild(sc);
+  });
+  return tessLoading;
+}
+async function getWorker(){
+  if(worker) return worker;
+  await loadTess();
+  worker=await window.Tesseract.createWorker('kor+eng',1,{
+    langPath:'https://tessdata.projectnaptha.com/4.0.0_fast'
+  });
+  return worker;
+}
+function units(data){
+  if(data&&data.words&&data.words.length) return data.words;
+  const out=[], blocks=(data&&data.blocks)||[];
+  for(const b of blocks){ for(const p of (b.paragraphs||[])){ for(const l of (p.lines||[])){
+    if(l.words&&l.words.length){ for(const w of l.words) out.push(w); }
+    else if(l.text) out.push(l);
+  } } }
+  return out;
+}
+/* 페이지 렌더 → OCR 한 쪽 처리 */
+async function ocrPage(n){
+  const Sx=S(); const page=await Sx.pdf.getPage(n);
+  const vp1=page.getViewport({scale:1});
+  const sc=Math.min(2, 1700/Math.max(vp1.width,vp1.height));
+  const vp=page.getViewport({scale:sc});
+  const cv=document.createElement('canvas'); cv.width=Math.max(1,vp.width|0); cv.height=Math.max(1,vp.height|0);
+  const cx=cv.getContext('2d',{willReadFrequently:true});
+  cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height);
+  await page.render({canvasContext:cx,viewport:vp}).promise;
+  const w=await getWorker();
+  const {data}=await w.recognize(cv);
+  const us=units(data);
+  let full=''; const arr=[];
+  for(const u of us){
+    const txt=String(u&&u.text||'').replace(/\s+/g,' ').trim(); if(!txt) continue;
+    const b=u.bbox||u.b; if(!b||b.x0==null) continue;
+    if(full) full+=' ';
+    const s=full.length; full+=txt;
+    arr.push([s,full.length,+(b.x0/cv.width).toFixed(4),+(b.y0/cv.height).toFixed(4),+((b.x1-b.x0)/cv.width).toFixed(4),+((b.y1-b.y0)/cv.height).toFixed(4)]);
+  }
+  return {t:full, ws:arr};
+}
+/* getTextContent 랩핑: OCR 결과가 있으면 pdf.js 형식 아이템으로 응답 */
+async function fakeGTC(page, og){
+  const n=page.pageNumber;
+  const rec=pages&&pages[n];
+  if(!rec||!rec.ws||!rec.ws.length) { try{ return await og(); }catch(_){ return {items:[],styles:{}}; } }
+  const vp=page.getViewport({scale:1});
+  const W=vp.width, H=vp.height;
+  const items=[];
+  for(const a of rec.ws){
+    items.push({str:rec.t.slice(a[0],a[1]), transform:[1,0,0,1, a[2]*W, H-(a[3]+a[5])*H], width:a[4]*W, height:a[5]*H, hasEOL:false, fontName:''});
+  }
+  if(!items.length) items.push({str:rec.t,transform:[1,0,0,1,0,H-12],width:W,height:24,hasEOL:false,fontName:''});
+  return {items:items, styles:{}};
+}
+function patchDoc(Sx){
+  if(patchedDoc===Sx.pdf) return;
+  patchedDoc=Sx.pdf;
+  const gp=Sx.pdf.getPage.bind(Sx.pdf);
+  Sx.pdf.getPage=async n=>{
+    const p=await gp(n);
+    if(!p.__rn4g){ p.__rn4g=1; const og=p.getTextContent.bind(p); p.getTextContent=()=>fakeGTC(p,og); }
+    return p;
+  };
+}
+async function pageText(n){
+  const Sx=S(); if(!Sx||!Sx.pdf) return '';
+  try{
+    const page=await Sx.pdf.getPage(n);
+    const tc=await page.getTextContent();
+    let f=''; for(const it of tc.items){ if(!it.str) continue; f+=it.str+' '; }
+    return f.trim();
+  }catch(_){ return ''; }
+}
+/* ---- 진행 pill ---- */
+let pill=null,pTxt=null,pBar=null;
+function pillUI(){
+  if(pill) return;
+  pill=document.createElement('div'); pill.id='rnp4pill';
+  pill.innerHTML='<span id="rnp4p-t">OCR 준비…</span><span class="rnp4-bar"><i id="rnp4p-b"></i></span><button id="rnp4p-x">취소</button>';
+  document.body.appendChild(pill);
+  pTxt=document.getElementById('rnp4p-t'); pBar=document.getElementById('rnp4p-b');
+  document.getElementById('rnp4p-x').addEventListener('click',()=>{ stopOcr(); T('OCR을 중단합니다'); });
+}
+function pillShow(on){ pillUI(); pill.classList.toggle('on',!!on); }
+function pillSet(n,tot){
+  pillUI(); pTxt.textContent='OCR 인식 중… '+n+'/'+tot+'쪽';
+  pBar.style.width=(tot?Math.round(n/tot*100):0)+'%';
+}
+function stopOcr(){ cancelFlag=true; if(worker){ try{worker.terminate()}catch(_){} worker=null; } }
+/* ---- 책 감지/자동 시작 ---- */
+async function detectScanned(Sx){
+  scanned=false;
+  const N=Sx.numPages||0; if(!N) return;
+  const sample=[1,2,3,Math.ceil(N/2)].filter(n=>n>=1&&n<=N);
+  let chars=0;
+  for(const n of sample){
+    try{
+      const page=await Sx.pdf.getPage(n);
+      const tc=await page.getTextContent();
+      let f=''; for(const it of tc.items){ if(!it.str) continue; f+=it.str; }
+      chars+=f.replace(/\s/g,'').length;
+    }catch(_){ }
+    if(chars>60) break;
+  }
+  if(chars<=60) scanned=true;
+  return scanned;
+}
+async function onBook(Sx){
+  if(running) stopOcr();
+  curKey=Sx.storeKey||null; curN=Sx.numPages||0;
+  pages=null; ocrDone=0; scanned=false;
+  patchDoc(Sx);
+  if(!curKey) return;
+  const c=await idbGet(ocrKey());
+  if(c&&c.pages){ pages=c.pages; ocrDone=Object.keys(pages).length; }
+  const N=Sx.numPages||0;
+  if(!N) return;
+  await detectScanned(Sx);
+  if(scanned&&!(pages&&Object.keys(pages).length>=N)){
+    if(navigator.onLine===false){ T('스캔 PDF입니다 — 온라인 연결 시 OCR이 자동 진행됩니다'); return; }
+    if(N>600&&!confirm('스캔 PDF '+N+'쪽입니다. OCR은 시간이 걸립니다(분당 수십 쪽). 지금 시작할까요?\n(취소해도 공유 메뉴 > OCR 상태에서 언제든 시작할 수 있어요)')) return;
+    setTimeout(()=>{ if(S()&&S().storeKey===curKey) startOcr(); },1200);
+  }
+}
+function startOcr(){
+  const Sx=S(); if(!Sx||!Sx.pdf){ T('먼저 책을 열어주세요'); return; }
+  if(running){ T('OCR이 이미 진행 중입니다'); return; }
+  if(!pages) pages={};
+  curN=Sx.numPages||curN;
+  if(!curN){ T('페이지 정보를 읽을 수 없습니다'); return; }
+  running=true; cancelFlag=false; pillShow(true); pillSet(0,curN);
+  (async()=>{
+    try{
+      for(let n=1;n<=curN;n++){
+        if(cancelFlag) break;
+        if(pages[n]) continue;
+        const r=await ocrPage(n);
+        pages[n]=r; ocrDone++;
+        pillSet(n,curN);
+        if(ocrDone%3===0) await idbPut(ocrKey(),{v:1,lang:'kor+eng',pages:pages,ts:Date.now()});
+      }
+      await idbPut(ocrKey(),{v:1,lang:'kor+eng',pages:pages,ts:Date.now()});
+      T(cancelFlag?('OCR 중단됨 ('+ocrDone+'/'+curN+'쪽 저장)'):('OCR 완료! ('+ocrDone+'/'+curN+'쪽) — 검색·복사가 가능합니다'));
+    }catch(e){
+      console.error(e);
+      T(cancelFlag?'OCR 중단됨':('OCR 실패: '+(e&&e.message?e.message:'알 수 없는 오류')));
+    }finally{
+      running=false; pillShow(false);
+      if(worker){ try{worker.terminate()}catch(_){} worker=null; }
+    }
+  })();
+}
+/* ---- 메뉴/버튼 동작 ---- */
+async function ocrMenu(){
+  const Sx=S(); if(!Sx||!Sx.pdf){ T('먼저 책을 열어주세요'); return; }
+  const N=Sx.numPages||0;
+  const have=pages?Object.keys(pages).length:0;
+  if(running){ T('OCR 진행 중: '+ocrDone+'/'+N+'쪽 — 왼쪽 아래에서 취소할 수 있어요'); return; }
+  if(have>=N&&N>0){
+    if(confirm('OCR 완료 상태입니다('+have+'/'+N+'쪽).\n처음부터 다시 인식할까요?')){ await idbDel(ocrKey()); pages=null; ocrDone=0; startOcr(); }
+    else T('OCR 상태: '+have+'/'+N+'쪽 완료');
+    return;
+  }
+  if(have>0) T('OCR 이어서 진행합니다 ('+have+'/'+N+'쪽부터)');
+  startOcr();
+}
+async function copyCur(){
+  const Sx=S(); const n=Sx?(Sx.current||1):1;
+  const t=await pageText(n);
+  if(!t){ T('복사할 텍스트가 없습니다'); return; }
+  try{ await navigator.clipboard.writeText(t); T(n+'쪽 텍스트를 복사했습니다'); }
+  catch(_){ viewCur(); }
+}
+function viewCur(){
+  const Sx=S(); const n=Sx?(Sx.current||1):1;
+  viewText(n);
+}
+async function viewText(n){
+  const t=await pageText(n);
+  let d=document.getElementById('rnp4tv');
+  if(!d){
+    d=document.createElement('div'); d.id='rnp4tv';
+    d.innerHTML='<div class="rnp4tv-p"><div class="rnp4tv-h"><b id="rnp4tv-t">페이지 텍스트</b><button id="rnp4tv-x" title="닫기">✕</button></div><textarea id="rnp4tv-a" readonly spellcheck="false"></textarea><div class="rnp4tv-f"><button id="rnp4tv-c">복사</button><button id="rnp4tv-d">닫기</button></div></div>';
+    document.body.appendChild(d);
+    d.addEventListener('click',e=>{ if(e.target===d) d.classList.remove('on'); });
+    document.getElementById('rnp4tv-x').addEventListener('click',()=>d.classList.remove('on'));
+    document.getElementById('rnp4tv-d').addEventListener('click',()=>d.classList.remove('on'));
+    document.getElementById('rnp4tv-c').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(document.getElementById('rnp4tv-a').value); T('복사했습니다'); }catch(_){ document.getElementById('rnp4tv-a').select(); try{document.execCommand('copy');T('복사했습니다')}catch(_){} } });
+  }
+  document.getElementById('rnp4tv-t').textContent=n+'쪽 텍스트'+(t?'':' (텍스트 없음)');
+  document.getElementById('rnp4tv-a').value=t||'';
+  d.classList.add('on');
+}
+/* ---- 초기화: 책 교체 폴링 ---- */
+setInterval(()=>{
+  const Sx=S();
+  if(!Sx||!Sx.pdf||!Sx.storeKey) return;
+  if(curKey!==Sx.storeKey){ onBook(Sx); }
+},1500);
+window.RNP4={pageText,ocrMenu,copyCur,viewCur,viewText,startOcr};
+})();
+</script>
+<script>
+/* P4 페이지 편집(자르기): 썸네일 선택 → 추출/삭제/회전 → 새 PDF 저장 */
+(function(){
+'use strict';
+if(window.RNP4edit) return;
+const S=()=> (window.RNBridge&&window.RNBridge.S)||null;
+function T(m){ try{ if(typeof window.toast==='function') window.toast(m); else console.log('[RNP4]',m); }catch(_){ } }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+let pdfLibLoading=null;
+function loadPdfLib(){
+  if(window.PDFLib&&window.PDFLib.PDFDocument) return Promise.resolve();
+  if(pdfLibLoading) return pdfLibLoading;
+  pdfLibLoading=new Promise((res,rej)=>{
+    const sc=document.createElement('script');
+    sc.src='./pdf-lib.min.js';
+    sc.onload=()=>{ if(window.PDFLib) res(); else rej(new Error('pdf-lib 로드 실패')); };
+    sc.onerror=()=>rej(new Error('pdf-lib 로드 실패'));
+    document.head.appendChild(sc);
+  });
+  return pdfLibLoading;
+}
+function dl(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+}
+let sel=[], busy=false, io=null, N=0;
+function esc2(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function baseName(){ const Sx=S(); return ((Sx&&Sx.fileName)||'document').replace(/\.pdf$/i,''); }
+function ensureModal(){
+  if(document.getElementById('rnp4e')) return;
+  const ov=document.createElement('div'); ov.id='rnp4e';
+  ov.innerHTML=
+    '<div class="rnp4e-panel">'+
+      '<div class="rnp4e-head"><b>페이지 편집</b><span id="rnp4e-cnt"></span><button class="rnp4e-x" id="rnp4e-close" title="닫기">✕</button></div>'+
+      '<div class="rnp4e-bar">'+
+        '<button id="rnp4e-all">전체선택</button><button id="rnp4e-none">해제</button>'+
+        '<span class="rnp4e-sep"></span><input id="rnp4e-f" type="number" min="1" placeholder="从">–<input id="rnp4e-t" type="number" min="1" placeholder="到"><button id="rnp4e-range">범위추가</button>'+
+        '<span class="rnp4e-sep"></span>'+
+        '<button id="rnp4e-ext" class="rnp4e-pri">선택 추출</button>'+
+        '<button id="rnp4e-del" class="rnp4e-warn">선택 삭제</button>'+
+        '<button id="rnp4e-rot">선택 회전</button>'+
+      '</div>'+
+      '<div class="rnp4e-hint">썸네일을 누른 순서대로 번호가 매겨집니다 · 추출은 선택한 순서대로 새 PDF로 저장 · 회전은 선택한 쪽만 +90° 돌려 전체를 저장</div>'+
+      '<div class="rnp4e-grid" id="rnp4e-grid"></div>'+
+    '</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{ if(e.target===ov&&!busy) close(); });
+  document.getElementById('rnp4e-close').addEventListener('click',()=>{ if(!busy) close(); });
+  document.getElementById('rnp4e-all').addEventListener('click',()=>{ if(busy) return; sel=[]; for(let n=1;n<=N;n++) sel.push(n); ui(); });
+  document.getElementById('rnp4e-none').addEventListener('click',()=>{ if(busy) return; sel=[]; ui(); });
+  document.getElementById('rnp4e-range').addEventListener('click',()=>{ if(busy) return;
+    const f=+document.getElementById('rnp4e-f').value||0, t=+document.getElementById('rnp4e-t').value||0;
+    let a=Math.min(f,t), b=Math.max(f,t); if(!a||!b||a<1) { T('범위를 입력하세요'); return; }
+    a=Math.max(1,a); b=Math.min(N,b);
+    for(let n=a;n<=b;n++) if(!sel.includes(n)) sel.push(n);
+    sel.sort((x,y)=>x-y); ui();
+  });
+  document.getElementById('rnp4e-ext').addEventListener('click',()=>act('ext'));
+  document.getElementById('rnp4e-del').addEventListener('click',()=>act('del'));
+  document.getElementById('rnp4e-rot').addEventListener('click',()=>act('rot'));
+  const grid=document.getElementById('rnp4e-grid');
+  grid.addEventListener('click',e=>{
+    const c=e.target.closest('.rnp4e-cell'); if(!c||busy) return;
+    const n=+c.dataset.n; const i=sel.indexOf(n);
+    if(i>=0) sel.splice(i,1); else sel.push(n);
+    ui();
+  });
+  io=new IntersectionObserver(es=>{
+    for(const en of es){
+      if(en.isIntersecting) renderCell(en.target);
+    }
+  },{root:grid,rootMargin:'500px',threshold:0});
+}
+function ui(){
+  const cnt=document.getElementById('rnp4e-cnt'); if(cnt) cnt.textContent=N?sel.length+' / '+N+'쪽 선택':'';
+  document.querySelectorAll('#rnp4e-grid .rnp4e-cell').forEach(c=>{
+    const i=sel.indexOf(+c.dataset.n);
+    c.classList.toggle('on',i>=0);
+    const b=c.querySelector('.rnp4e-badge');
+    b.textContent=i>=0?(i+1):''; b.style.display=i>=0?'block':'none';
+  });
+}
+async function renderCell(cell){
+  if(cell.dataset.done) return; cell.dataset.done='1';
+  const Sx=S(); if(!Sx||!Sx.pdf) return;
+  try{
+    const page=await Sx.pdf.getPage(+cell.dataset.n);
+    const vp1=page.getViewport({scale:1});
+    const sc=Math.min(0.34, 300/Math.max(vp1.width,vp1.height));
+    const vp=page.getViewport({scale:sc});
+    const cv=document.createElement('canvas'); cv.width=Math.max(1,vp.width|0); cv.height=Math.max(1,vp.height|0);
+    await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    cell.textContent='';
+    cell.appendChild(cv);
+    cell.dataset.rot=page.rotate||0;
+    const badge=document.createElement('span'); badge.className='rnp4e-badge'; cell.appendChild(badge);
+    const lb=document.createElement('span'); lb.className='rnp4e-lb'; lb.textContent=cell.dataset.n+'쪽'; cell.appendChild(lb);
+    const i=sel.indexOf(+cell.dataset.n);
+    cell.classList.toggle('on',i>=0);
+    badge.textContent=i>=0?(i+1):''; badge.style.display=i>=0?'block':'none';
+  }catch(e){ cell.textContent='실패'; }
+}
+function close(){
+  const ov=document.getElementById('rnp4e'); if(!ov) return;
+  if(io){ io.disconnect(); io=null; }
+  ov.remove(); sel=[]; busy=false;
+}
+async function act(mode){
+  if(busy) return;
+  const Sx=S(); if(!Sx||!Sx.pdf){ T('먼저 책을 열어주세요'); return; }
+  const total=Sx.numPages||0; if(!total) return;
+  const uniq=sel.slice().sort((a,b)=>a-b);
+  if(mode!=='ext'&&!uniq.length){ T('선택한 페이지가 없습니다'); return; }
+  if(mode==='ext'&&!sel.length){ T('선택한 페이지가 없습니다'); return; }
+  if(mode==='del'&&uniq.length>=total){ T('전부 삭제할 수는 없습니다'); return; }
+  busy=true; setBusy(true);
+  try{
+    T('pdf-lib 로드 중…'); await loadPdfLib();
+    const PDFDocument=window.PDFLib.PDFDocument;
+    T('원본 PDF 읽는 중…');
+    const bytes=await Sx.pdf.getData();
+    const orig=await PDFDocument.load(bytes,{ignoreEncryption:true});
+    const out=await PDFDocument.create();
+    let tag='편집';
+    if(mode==='ext'){
+      tag='추출';
+      T('페이지 복사 중…');
+      const cps=await out.copyPages(orig, sel.map(p=>p-1));
+      cps.forEach(p=>out.addPage(p));
+    }else if(mode==='del'){
+      tag='삭제';
+      const keep=[]; for(let n=1;n<=total;n++) if(!uniq.includes(n)) keep.push(n-1);
+      const cps=await out.copyPages(orig,keep);
+      cps.forEach(p=>out.addPage(p));
+    }else if(mode==='rot'){
+      tag='회전';
+      const idx=[]; for(let n=0;n<total;n++) idx.push(n);
+      const cps=await out.copyPages(orig,idx);
+      const selSet=new Set(sel);
+      for(let n=0;n<total;n++){
+        const added=out.addPage(cps[n]);
+        if(selSet.has(n+1)){
+          let base=0;
+          try{ const pg=await Sx.pdf.getPage(n+1); base=pg.rotate||0; }catch(_){ }
+          added.setRotation(window.PDFLib.degrees(((base+90)%360+360)%360));
+        }
+        if(n%5===4){ T('회전 적용 중… '+(n+1)+'/'+total); await sleep(0); }
+      }
+    }
+    T('PDF 저장 중…');
+    const data=await out.save();
+    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    let nm=baseName()+'_'+tag+'_'+stamp+'.pdf';
+    if(mode==='ext'&&sel.length<=30) nm=baseName()+'_p'+sel[0]+(sel.length>1?'-'+sel[sel.length-1]:'')+'_'+tag+'.pdf';
+    dl(new Blob([data],{type:'application/pdf'}),nm);
+    T('저장 완료: '+nm);
+  }catch(e){
+    console.error(e); T('편집 실패: '+(e&&e.message?e.message:'알 수 없는 오류'));
+  }finally{ busy=false; setBusy(false); }
+}
+function setBusy(b){
+  document.querySelectorAll('#rnp4e-bar button').forEach(x=>{ x.disabled=b; x.style.opacity=b?'0.5':''; });
+}
+function openEditor(){
+  const Sx=S(); if(!Sx||!Sx.pdf){ T('먼저 책을 열어주세요'); return; }
+  N=Sx.numPages||0; if(!N){ T('페이지 정보를 읽을 수 없습니다'); return; }
+  ensureModal(); sel=[];
+  const grid=document.getElementById('rnp4e-grid');
+  grid.innerHTML='';
+  for(let n=1;n<=N;n++){
+    const c=document.createElement('div');
+    c.className='rnp4e-cell'; c.dataset.n=n;
+    c.innerHTML='<span class="rnp4e-lb">'+n+'쪽</span>';
+    grid.appendChild(c);
+    io.observe(c);
+  }
+  ui();
+}
+/* shareMenu(RNP2 도구 아래)에 항목 추가 + 라우팅 */
+let itemsAdded=false;
+function addMenuItems(){
+  const sm=document.getElementById('shareMenu'); if(!sm||itemsAdded) return;
+  if(!sm.querySelector('button[data-x="rnp2-sync"]')) return; // RNP2 메뉴가 아직 안 그려짐
+  if(sm.querySelector('button[data-x="rnp4-edit"]')) { itemsAdded=true; return; }
+  const html=document.createElement('div');
+  html.innerHTML='<div class="sm-title">P4 도구</div>'+
+    '<button data-x="rnp4-edit">페이지 편집 (자르기)</button>'+
+    '<button data-x="rnp4-ocr">OCR 상태 / 다시 인식</button>'+
+    '<button data-x="rnp4-copy">현재 페이지 텍스트 복사</button>'+
+    '<button data-x="rnp4-view">현재 페이지 텍스트 보기</button>';
+  while(html.firstChild) sm.appendChild(html.firstChild);
+  itemsAdded=true;
+  sm.addEventListener('click',ev=>{
+    const b=ev.target.closest('button'); if(!b) return;
+    const x=b.dataset.x;
+    if(x==='rnp4-edit'){ openEditor(); }
+    else if(x==='rnp4-ocr'&&window.RNP4){ RNP4.ocrMenu(); }
+    else if(x==='rnp4-copy'&&window.RNP4){ RNP4.copyCur(); }
+    else if(x==='rnp4-view'&&window.RNP4){ RNP4.viewCur(); }
+  });
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('#btnShare');
+  if(b) setTimeout(addMenuItems,30);
+},true);
+window.RNP4edit={openEditor,addMenuItems};
+})();
 </script>
 </body>
 </html>
