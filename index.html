@@ -3317,7 +3317,7 @@ function ui(){
     const i=sel.indexOf(+c.dataset.n);
     c.classList.toggle('on',i>=0);
     const b=c.querySelector('.rnp4e-badge');
-    b.textContent=i>=0?(i+1):''; b.style.display=i>=0?'block':'none';
+    if(b){ b.textContent=i>=0?(i+1):''; b.style.display=i>=0?'block':'none'; }
   });
 }
 async function renderCell(cell){
@@ -3723,8 +3723,8 @@ try{
         var b=document.getElementById('rnp7cropbtn'); if(b) b.remove();
         var box=document.getElementById('rnp7crop'); if(box) box.remove();
       }catch(_){ }
-      var r=orig.apply(null,arguments);
-      setTimeout(injectCropUI,80);
+      var r;
+      try{ r=orig.apply(null,arguments) } finally { setTimeout(injectCropUI,80) }
       return r;
     };
     E.__rnp7wrapped=true;
