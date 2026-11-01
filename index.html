@@ -771,6 +771,43 @@ body.dark .btn.primary:hover{background:#F4EDDC}
 #eraserCursor{background:rgba(140,125,96,.22);border:1.5px solid var(--ink)}
 
 </style>
+<style id="rnp7css">
+#rnp7cropbtn{border:1px solid var(--accent)!important;color:var(--accent-text);background:var(--surface);font-weight:700;border-radius:7px;height:28px;padding:0 10px;cursor:pointer}
+#rnp7cropbtn.on{background:var(--accent-soft)}
+#rnp7crop{border:1px solid var(--border);border-radius:10px;background:var(--surface-2);padding:12px 14px;margin:10px 0 12px}
+.rnp7-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.rnp7-head b{font-size:14px;color:var(--ink)}
+.rnp7-head span{font-size:11.5px;color:var(--muted)}
+.rnp7-body{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.rnp7-prev-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.rnp7-prev{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:6px;background:#fff;max-width:260px;min-height:160px}
+.rnp7-prev canvas{display:block;max-width:100%;height:auto}
+.rnp7-empty{padding:46px 18px;color:var(--muted);font-size:12px;text-align:center}
+.rnp7-mask{position:absolute;background:rgba(66,57,43,.48)}
+.rnp7-mt{top:0;left:0;right:0}
+.rnp7-mb{bottom:0;left:0;right:0}
+.rnp7-ml{left:0}
+.rnp7-mr{right:0}
+.rnp7-rect{position:absolute;border:2px dashed var(--accent);box-sizing:border-box}
+.rnp7-h{position:absolute;background:transparent;touch-action:none}
+.rnp7-h-t{top:-7px;left:0;right:0;height:14px;cursor:ns-resize}
+.rnp7-h-b{bottom:-7px;left:0;right:0;height:14px;cursor:ns-resize}
+.rnp7-h-l{left:-7px;top:0;bottom:0;width:14px;cursor:ew-resize}
+.rnp7-h-r{right:-7px;top:0;bottom:0;width:14px;cursor:ew-resize}
+.rnp7-nav{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.rnp7-nav button{width:26px;height:26px;border:1px solid var(--border);background:var(--surface);border-radius:6px;cursor:pointer;color:var(--ink-2);font-size:11px}
+.rnp7-nav button:disabled{opacity:.45;cursor:not-allowed}
+.rnp7-ctl{flex:1;display:flex;flex-direction:column;gap:8px;min-width:230px}
+.rnp7-row{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.rnp7-row input{width:76px;height:30px;border:1px solid var(--border);border-radius:7px;padding:0 8px;font:inherit;background:var(--surface);color:var(--ink);box-sizing:border-box}
+.rnp7-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.rnp7-pri{background:var(--ink);border:1px solid var(--ink);color:var(--surface);border-radius:8px;height:34px;padding:0 14px;font-weight:700;font-size:13px;cursor:pointer}
+body.dark .rnp7-pri{color:var(--bg)}
+.rnp7-sec{background:var(--surface);border:1px solid var(--border);color:var(--ink);border-radius:8px;height:34px;padding:0 12px;font-weight:600;font-size:12.5px;cursor:pointer}
+.rnp7-sec:disabled{opacity:.45;cursor:not-allowed}
+.rnp7-hint{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:8px}
+
+</style>
 </head>
 <body>
 <header id="topbar">
@@ -3468,6 +3505,236 @@ try{
     },1200);
   }
 }catch(e){}
+})();
+
+</script>
+<script id="rnp7js">
+/* P7 · 여백 잘라내기 — 전체 페이지 일괄 적용 + 원본 복귀 */
+(function(){
+'use strict';
+if(window.RNP7crop) return;
+function S(){ return (window.RNBridge&&window.RNBridge.S)||null; }
+function T(m){ try{ if(typeof window.toast==='function') window.toast(m); else console.log('[RNP7]',m); }catch(_){ } }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms) }); }
+function clamp(v,a,b){ v=+v; if(isNaN(v)) v=0; return Math.min(b,Math.max(a,v)); }
+var libP=null;
+function loadPdfLib(){
+  if(window.PDFLib&&window.PDFLib.PDFDocument) return Promise.resolve();
+  if(libP) return libP;
+  libP=new Promise(function(res,rej){
+    var sc=document.createElement('script');
+    sc.src='./pdf-lib.min.js';
+    sc.onload=function(){ if(window.PDFLib) res(); else rej(new Error('pdf-lib 로드 실패')) };
+    sc.onerror=function(){ rej(new Error('pdf-lib 로드 실패')) };
+    document.head.appendChild(sc);
+  });
+  return libP;
+}
+var state={t:0,r:0,b:0,l:0,page:1,busy:false};
+function snapKey(){ var x=S(); return (x&&x.storeKey)?('rncrop:'+x.storeKey):null; }
+function setBusyP7(b){
+  ['rnp7-apply','rnp7-revert','rnp7-pv','rnp7-nx'].forEach(function(id){
+    var el=document.getElementById(id); if(el){ el.disabled=b; el.style.opacity=b?'0.5':''; }
+  });
+}
+function rowHTML(k,label){
+  return '<div class="rnp7-row"><span>'+label+'</span><input id="rnp7-'+k+'" type="number" min="0" max="45" step="0.5" value="0"><span>%</span></div>';
+}
+function injectCropUI(){
+  var panel=document.querySelector('#rnp4e .rnp4e-panel'); if(!panel) return;
+  if(document.getElementById('rnp7cropbtn')) return;
+  var bar=panel.querySelector('.rnp4e-bar'); if(!bar) return;
+  var btn=document.createElement('button'); btn.id='rnp7cropbtn'; btn.type='button'; btn.textContent='여백 자르기';
+  btn.addEventListener('click',function(){ toggle(); });
+  bar.appendChild(btn);
+  var box=document.createElement('div'); box.id='rnp7crop'; box.style.display='none';
+  box.innerHTML=
+    '<div class="rnp7-head"><b>여백 잘라내기</b><span>미리보기에서 여백을 조정하면 전체 페이지에 똑같이 적용됩니다</span></div>'+
+    '<div class="rnp7-body">'+
+      '<div class="rnp7-prev-wrap">'+
+        '<div class="rnp7-prev" id="rnp7prev"></div>'+
+        '<div class="rnp7-nav"><button id="rnp7-pv" type="button">◀</button><span id="rnp7-pn">–</span><button id="rnp7-nx" type="button">▶</button></div>'+
+      '</div>'+
+      '<div class="rnp7-ctl">'+
+        rowHTML('t','위')+rowHTML('b','아래')+rowHTML('l','왼쪽')+rowHTML('r','오른쪽')+
+        '<div class="rnp7-actions">'+
+          '<button id="rnp7-apply" type="button" class="rnp7-pri">전체 페이지에 적용</button>'+
+          '<button id="rnp7-revert" type="button" class="rnp7-sec">복귀(원상태)</button>'+
+        '</div>'+
+        '<div class="rnp7-hint">적용하면 현재 문서가 여백이 잘린 상태로 다시 열립니다. 복귀를 누르면 잘라내기 전 원본으로 되돌아갑니다.</div>'+
+      '</div>'+
+    '</div>';
+  var grid=panel.querySelector('.rnp4e-grid');
+  if(grid) panel.insertBefore(box,grid); else panel.appendChild(box);
+  ['t','b','l','r'].forEach(function(k){
+    var el=document.getElementById('rnp7-'+k);
+    if(el) el.addEventListener('input',function(){ state[k]=clamp(el.value,0,45); updateMask(); });
+  });
+  document.getElementById('rnp7-pv').addEventListener('click',function(){ if(state.busy) return; if(state.page>1){ state.page--; drawPreview(); } });
+  document.getElementById('rnp7-nx').addEventListener('click',function(){ var x=S(); var N=(x&&x.numPages)?x.numPages:1; if(state.busy) return; if(state.page<N){ state.page++; drawPreview(); } });
+  document.getElementById('rnp7-apply').addEventListener('click',applyCrop);
+  document.getElementById('rnp7-revert').addEventListener('click',revertCrop);
+}
+function toggle(){
+  var box=document.getElementById('rnp7crop'); if(!box) return;
+  var open=box.style.display==='none';
+  box.style.display=open?'block':'none';
+  var grid=document.querySelector('#rnp4e .rnp4e-grid');
+  if(grid) grid.style.display=open?'none':'';
+  var btn=document.getElementById('rnp7cropbtn'); if(btn) btn.classList.toggle('on',open);
+  if(open){ syncInputs(); drawPreview(); refreshRevert(); }
+}
+function syncInputs(){
+  ['t','b','l','r'].forEach(function(k){
+    var el=document.getElementById('rnp7-'+k);
+    if(el&&+el.value!==state[k]) el.value=state[k];
+  });
+}
+function updateMask(){
+  var prev=document.getElementById('rnp7prev'); if(!prev) return;
+  var mt=prev.querySelector('.rnp7-mt'),mb=prev.querySelector('.rnp7-mb'),ml=prev.querySelector('.rnp7-ml'),mr=prev.querySelector('.rnp7-mr'),rc=prev.querySelector('.rnp7-rect');
+  if(mt) mt.style.height=state.t+'%';
+  if(mb) mb.style.height=state.b+'%';
+  if(ml){ ml.style.width=state.l+'%'; ml.style.top=state.t+'%'; ml.style.bottom=state.b+'%'; }
+  if(mr){ mr.style.width=state.r+'%'; mr.style.top=state.t+'%'; mr.style.bottom=state.b+'%'; }
+  if(rc){ rc.style.top=state.t+'%'; rc.style.bottom=state.b+'%'; rc.style.left=state.l+'%'; rc.style.right=state.r+'%'; }
+}
+function drawPreview(){
+  var prev=document.getElementById('rnp7prev'); if(!prev) return;
+  var x=S();
+  if(!x||!x.pdf){ prev.innerHTML='<div class="rnp7-empty">책을 열면 미리보기가 표시됩니다</div>'; return; }
+  var n=state.page, N=x.numPages||1;
+  if(n>N){ n=1; state.page=1; }
+  var pn=document.getElementById('rnp7-pn'); if(pn) pn.textContent=n+' / '+N+'쪽';
+  prev.innerHTML='<div class="rnp7-empty">불러오는 중…</div>';
+  x.pdf.getPage(n).then(function(page){
+    var vp1=page.getViewport({scale:1});
+    var sc=Math.min(0.5, 300/Math.max(vp1.width,vp1.height));
+    var vp=page.getViewport({scale:sc});
+    var cv=document.createElement('canvas'); cv.width=Math.max(1,vp.width|0); cv.height=Math.max(1,vp.height|0);
+    return page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise.then(function(){ return cv; });
+  }).then(function(cv){
+    if(state.page!==n) return;
+    var pr=document.getElementById('rnp7prev'); if(!pr) return;
+    pr.innerHTML=''; pr.appendChild(cv);
+    ['rnp7-mt','rnp7-mb','rnp7-ml','rnp7-mr'].forEach(function(cls){
+      var d=document.createElement('div'); d.className='rnp7-mask '+cls; pr.appendChild(d);
+    });
+    var rc=document.createElement('div'); rc.className='rnp7-rect'; pr.appendChild(rc);
+    [['t','rnp7-h-t'],['b','rnp7-h-b'],['l','rnp7-h-l'],['r','rnp7-h-r']].forEach(function(hh){
+      var h=document.createElement('div'); h.className='rnp7-h '+hh[1]; rc.appendChild(h); dragHandle(h,hh[0]);
+    });
+    updateMask();
+  }).catch(function(){
+    var pr=document.getElementById('rnp7prev');
+    if(pr) pr.innerHTML='<div class="rnp7-empty">미리보기를 만들 수 없습니다</div>';
+  });
+}
+function dragHandle(h,k){
+  h.addEventListener('pointerdown',function(ev){
+    if(state.busy) return;
+    ev.preventDefault(); ev.stopPropagation();
+    var prev=document.getElementById('rnp7prev'); if(!prev) return;
+    var r=prev.getBoundingClientRect(); if(!r.width||!r.height) return;
+    var st={t:state.t,b:state.b,l:state.l,r:state.r};
+    function move(e2){
+      var dx=(e2.clientX-ev.clientX)/r.width*100, dy=(e2.clientY-ev.clientY)/r.height*100;
+      if(k==='t') state.t=clamp(st.t+dy,0,80-state.b);
+      else if(k==='b') state.b=clamp(st.b-dy,0,80-state.t);
+      else if(k==='l') state.l=clamp(st.l+dx,0,80-state.r);
+      else state.r=clamp(st.r-dx,0,80-state.l);
+      syncInputs(); updateMask();
+    }
+    function up(){ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); }
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+  });
+}
+async function refreshRevert(){
+  var el=document.getElementById('rnp7-revert'); if(!el) return;
+  el.disabled=true; el.title='확인 중…';
+  var key=snapKey(), ok=false;
+  if(key){ try{ var rec=await rnIdbGet(key); ok=!!(rec&&rec.data&&rec.data.byteLength>0); }catch(_){ } }
+  el.disabled=!ok; el.title=ok?'잘라내기 전 원본으로 되돌립니다':'보관된 원본이 없습니다';
+}
+function closeEditor(){ var c=document.getElementById('rnp4e-close'); if(c) c.click(); }
+async function applyCrop(){
+  if(state.busy) return;
+  var x=S(); if(!x||!x.pdf){ T('먼저 책을 열어주세요'); return; }
+  var t=state.t/100, b=state.b/100, l=state.l/100, r=state.r/100;
+  if(!(t||b||l||r)){ T('자를 여백을 지정하세요'); return; }
+  if((t+b)>=0.92||(l+r)>=0.92){ T('여백이 너무 큽니다'); return; }
+  state.busy=true; setBusyP7(true);
+  try{
+    T('pdf-lib 로드 중…'); await loadPdfLib();
+    var PDFDocument=window.PDFLib.PDFDocument;
+    var bytes=await x.pdf.getData();
+    var key=snapKey();
+    if(key){
+      try{
+        var old=await rnIdbGet(key);
+        if(!(old&&old.data&&old.data.byteLength>0)) await rnIdbPut(key,{name:String(x.fileName),size:Number(x.fileSize)||0,data:bytes.slice(0),ts:Date.now()});
+      }catch(_){ }
+    }
+    var doc=await PDFDocument.load(bytes,{ignoreEncryption:true});
+    var pages=doc.getPages();
+    for(var i=0;i<pages.length;i++){
+      var pg=pages[i], base=null;
+      try{ var cb=pg.getCropBox(); if(cb&&cb.width>0&&cb.height>0) base=cb; }catch(_){ }
+      if(!base){ try{ base=pg.getMediaBox(); }catch(_){ } }
+      if(!base) base={x:0,y:0,width:612,height:792};
+      pg.setCropBox(base.x+l*base.width, base.y+b*base.height, Math.max(1,base.width*(1-l-r)), Math.max(1,base.height*(1-t-b)));
+      if(i%5===4){ T('여백 적용 중… '+(i+1)+'/'+pages.length); await sleep(0); }
+    }
+    T('PDF 저장 중…');
+    var out=await doc.save();
+    var fname=String(x.fileName||'document.pdf'), fsize=Number(x.fileSize)||out.length;
+    T('잘린 문서를 다시 여는 중…');
+    closeEditor();
+    await openPdfData(new Uint8Array(out), fname, fsize);
+    T('전체 '+pages.length+'쪽에 여백이 적용되었습니다 · 복귀로 되돌릴 수 있어요');
+  }catch(e){
+    console.error(e); T('여백 적용 실패: '+(e&&e.message?e.message:'알 수 없는 오류'));
+  }finally{ state.busy=false; setBusyP7(false); }
+}
+async function revertCrop(){
+  if(state.busy) return;
+  var x=S(); if(!x||!x.pdf){ T('먼저 책을 열어주세요'); return; }
+  var key=snapKey(), rec=null;
+  if(key){ try{ rec=await rnIdbGet(key); }catch(_){ } }
+  if(!(rec&&rec.data&&rec.data.byteLength>0)){ T('보관된 원본이 없습니다'); return; }
+  state.busy=true; setBusyP7(true);
+  try{
+    var d=(rec.data instanceof Uint8Array)?rec.data:new Uint8Array(rec.data);
+    T('원본으로 되돌리는 중…');
+    closeEditor();
+    await openPdfData(d, String(rec.name||x.fileName||'document.pdf'), Number(rec.size)||Number(x.fileSize)||d.length);
+    if(key){ try{ await rnIdbPut(key,null); }catch(_){ } }
+    T('원상태로 복원되었습니다');
+  }catch(e){
+    console.error(e); T('복귀 실패: '+(e&&e.message?e.message:'알 수 없는 오류'));
+  }finally{ state.busy=false; setBusyP7(false); }
+}
+try{
+  var E=window.RNP4edit;
+  if(E&&typeof E.openEditor==='function'&&!E.__rnp7wrapped){
+    var orig=E.openEditor.bind(E);
+    E.openEditor=function(){
+      try{
+        var b=document.getElementById('rnp7cropbtn'); if(b) b.remove();
+        var box=document.getElementById('rnp7crop'); if(box) box.remove();
+      }catch(_){ }
+      var r=orig.apply(null,arguments);
+      setTimeout(injectCropUI,80);
+      return r;
+    };
+    E.__rnp7wrapped=true;
+  }
+}catch(e){}
+if(document.getElementById('rnp4e')) injectCropUI();
+window.RNP7crop={toggle:toggle,set:function(t,r,b,l){
+  state.t=clamp(t,0,45); state.r=clamp(r,0,45); state.b=clamp(b,0,45); state.l=clamp(l,0,45);
+  syncInputs(); updateMask();
+}};
 })();
 
 </script>
