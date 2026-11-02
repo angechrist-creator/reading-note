@@ -873,7 +873,7 @@ body.dark .rnp7-pri{color:var(--bg)}
     <button id="btnSingle" title="한/두 페이지 보기 전환 (D)"><svg id="icSingle" class="ic sm" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg><svg id="icDouble" class="ic sm" viewBox="0 0 24 24" style="display:none"><rect x="2.5" y="4" width="8.5" height="16" rx="1"/><rect x="13" y="4" width="8.5" height="16" rx="1"/></svg></button>
   </div>
   <button id="btnNote" class="iconbtn" title="필기 메모장 (N)"><svg class="ic" viewBox="0 0 24 24"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9l7-7V5a2 2 0 0 0-2-2Z"/><path d="M14 21v-5a2 2 0 0 1 2-2h5"/></svg></button>
-  <!--P11--><button id="btnShare" class="iconbtn" title="공유/내보내기"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+  <!--P11--><button id="btnShare" class="iconbtn" title="설정"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82-.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   <button id="btnTheme" class="iconbtn" title="다크 모드"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
 </header>
 
@@ -1418,6 +1418,7 @@ function redo(){
   applyStore(e.key,e.state); updateUndoUI(); saveDeb();
 }
 function updateUndoUI(){ $('#btnUndo').disabled=!S.undoStack.length; $('#btnRedo').disabled=!S.redoStack.length }
+/*P13*/{ const _bu=$('#btnUndo'),_br=$('#btnRedo'); if(_bu&&!_bu.dataset.bound){_bu.dataset.bound='1';_bu.addEventListener('click',undo)} if(_br&&!_br.dataset.bound){_br.dataset.bound='1';_br.addEventListener('click',redo)} }
 
 /* ================= 메모장 필기 (오른편) ================= */
 const notePaper=$('#notePaper'), noteInk=$('#noteInk'), notePre=$('#notePre');
