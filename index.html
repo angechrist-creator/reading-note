@@ -2121,7 +2121,7 @@ document.addEventListener('pointerdown',e=>{ if(e.pointerType==='pen') penPts.se
 document.addEventListener('pointerup',e=>{ if(e.pointerType==='pen') penPts.delete(e.pointerId) },true);
 document.addEventListener('pointercancel',e=>{ if(e.pointerType==='pen') penPts.delete(e.pointerId) },true);
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
-document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1||penActive()) e.preventDefault() },{passive:false});
+/*P14*/ document.addEventListener('touchmove',e=>{ const n=e.touches?e.touches.length:0; if(n>1){ e.preventDefault(); return } if(penActive()&&!(e.target&&e.target.closest&&e.target.closest('input,textarea,select'))) e.preventDefault() },{passive:false});
 
 /* ==== 메모장 폭 = 한 페이지 폭 (열려 있을 때) ==== */
 function updateNoteW(){
@@ -2197,6 +2197,7 @@ try{ const rw=parseFloat(localStorage.getItem('rn:noteW')); if(rw>0){ rnNoteManu
   document.addEventListener('pointerdown',function(e){
     if(e.pointerType!=='pen') return;
     if(inDraw(e.target)){tap=null;return;}
+    /*P14*/ try{ if(e.target&&e.target.closest&&e.target.closest('input[type=range]')){ tap=null; return } }catch(_){}
     tap={t:e.target,x:e.clientX,y:e.clientY,ts:Date.now()};
   },true);
   document.addEventListener('click',function(e){
